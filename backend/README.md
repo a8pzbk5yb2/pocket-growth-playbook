@@ -9,3 +9,5 @@
 
 Cookies use `SameSite=Lax`, so the app must be served from the same main domain (e.g. `app.yourdomain.com`).
 Responses: `{ success: true, data, meta? }` or `{ success: false, error: { code, message, fields? } }`.
+
+SMS codes: sent through BlackSMS (blacksms.in). In `config.php` set `sms.provider` to `blacksms` and fill in your BlackSMS API key and sender ID. Leave it as `log` to test without sending real SMS.

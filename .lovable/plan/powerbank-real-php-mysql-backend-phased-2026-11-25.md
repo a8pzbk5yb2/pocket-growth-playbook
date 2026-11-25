@@ -5,7 +5,7 @@ The look stays exactly as it is now. Screens switch one at a time from sample da
 ## Limits you should know about
 - **I can't run your Hostinger server from here.** I'll write the full PHP API and the database setup scripts in a `backend/` folder in this project. You upload them to Hostinger and import the SQL. I'll test them here on a local PHP 8.2 and MySQL 8 copy before handing them over.
 - **Sign-in cookies need one shared domain.** The secure cookies you asked for only work reliably if the app and the API share a main domain, for example `app.yourdomain.com` and `yourdomain.com/api/v1`. That means connecting your custom domain to this app. On the default lovable.app address, many browsers block these cookies.
-- **SMS codes need an SMS provider account.** I'll support MSG91 and Twilio, chosen in the server settings. Until it's set up, a "test mode" writes the code to the server log so you can try sign-up.
+- **SMS codes need an SMS provider account.** I'll support BlackSMS (blacksms.in). Until it's set up, a "test mode" writes the code to the server log so you can try sign-up.
 - **The first admin** gets created with a one-time setup command on the server. There's no public admin sign-up.
 
 ## Phases (one approval each, nothing destructive)

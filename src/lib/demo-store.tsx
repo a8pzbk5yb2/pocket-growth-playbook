@@ -72,6 +72,14 @@ function useDemoCore() {
       up(d => ({ ...d, currentUserId: u.id })); return null;
     },
     logout: () => up(d => ({ ...d, currentUserId: null })),
+    /** Puts a real signed-in account (from the PHP API) into the panels. */
+    useApiUser(a: { id: string; name: string; mobile: string; status: UserStatus; joined: string }) {
+      up(d => {
+        const prev = d.users.find(u => u.id === a.id);
+        const u: DemoUser = { ...(prev ?? { balance: 0, kyc: "pending", password: "", inviteCode: a.id }), id: a.id, name: a.name, mobile: a.mobile, status: a.status, joined: a.joined };
+        return { ...d, users: prev ? d.users.map(x => x.id === a.id ? u : x) : [...d.users, u], currentUserId: a.id, adminUnread: d.adminUnread + (prev ? 0 : 1) };
+      });
+    },
     addUser: (u: Omit<DemoUser, "id" | "joined" | "password" | "inviteCode">) => up(d => ({ ...d, users: [{ ...u, id: uid("PB"), joined: new Date().toISOString(), password: "demo123", inviteCode: uid("PBX") }, ...d.users] })),
     updateUser: (id: string, p: Partial<DemoUser>) => up(d => ({ ...d, users: d.users.map(u => u.id === id ? { ...u, ...p } : u) })),
     savePlan: (p: DemoPlan) => up(d => ({ ...d, plans: d.plans.some(x => x.id === p.id) ? d.plans.map(x => x.id === p.id ? p : x) : [...d.plans, p] })),

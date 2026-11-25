@@ -6,7 +6,7 @@ require __DIR__ . '/config/cors.php';
 foreach (['response', 'validator', 'jwt'] as $f) require __DIR__ . "/helpers/$f.php";
 foreach (['rate_limit', 'auth', 'admin'] as $f) require __DIR__ . "/middleware/$f.php";
 foreach (glob(__DIR__ . '/services/*.php') ?: [] as $f) require $f;
-foreach (glob(__DIR__ . '/controllers/*.php') ?: [] as $f) require $f;
+foreach (glob(__DIR__ . '/controllers/*Controller.php') ?: [] as $f) require $f;
 
 set_exception_handler(function (Throwable $e) {
   if ($e instanceof ApiError) json_out($e->status, ['success' => false, 'error' => ['code' => $e->errCode, 'message' => $e->getMessage()] + ($e->fields ? ['fields' => $e->fields] : [])]);

@@ -7,3 +7,11 @@
 - [x] Admin panel (12 sections + logout) with shared demo state
 - [x] User web dashboard (10 sections + logout)
 - [x] Sign up without email, mandatory invite code; login with Remember Me
+
+# Real backend (PHP + MySQL)
+- [x] Phase 1: API foundation + 14-table schema + app API client
+- [ ] Phase 2: sign-up, SMS codes, log-in, reset
+- [ ] Phase 3: user panel data
+- [ ] Phase 4: admin login + users
+- [ ] Phase 5: plans, referrals, notifications
+- [ ] Phase 6: reports, logs, security tests

@@ -10,33 +10,154 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DepositRouteImport } from './routes/deposit'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as MeRouteImport } from './routes/me'
+import { Route as PlansRouteImport } from './routes/plans'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as TasksRouteImport } from './routes/tasks'
+import { Route as TeamRouteImport } from './routes/team'
+import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as WithdrawRouteImport } from './routes/withdraw'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DepositRoute = DepositRouteImport.update({
+  id: '/deposit',
+  path: '/deposit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeRoute = MeRouteImport.update({
+  id: '/me',
+  path: '/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlansRoute = PlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TasksRoute = TasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamRoute = TeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WalletRoute = WalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WithdrawRoute = WithdrawRouteImport.update({
+  id: '/withdraw',
+  path: '/withdraw',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/deposit': typeof DepositRoute
+  '/login': typeof LoginRoute
+  '/me': typeof MeRoute
+  '/plans': typeof PlansRoute
+  '/signup': typeof SignupRoute
+  '/tasks': typeof TasksRoute
+  '/team': typeof TeamRoute
+  '/wallet': typeof WalletRoute
+  '/withdraw': typeof WithdrawRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/deposit': typeof DepositRoute
+  '/login': typeof LoginRoute
+  '/me': typeof MeRoute
+  '/plans': typeof PlansRoute
+  '/signup': typeof SignupRoute
+  '/tasks': typeof TasksRoute
+  '/team': typeof TeamRoute
+  '/wallet': typeof WalletRoute
+  '/withdraw': typeof WithdrawRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/deposit': typeof DepositRoute
+  '/login': typeof LoginRoute
+  '/me': typeof MeRoute
+  '/plans': typeof PlansRoute
+  '/signup': typeof SignupRoute
+  '/tasks': typeof TasksRoute
+  '/team': typeof TeamRoute
+  '/wallet': typeof WalletRoute
+  '/withdraw': typeof WithdrawRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/deposit'
+    | '/login'
+    | '/me'
+    | '/plans'
+    | '/signup'
+    | '/tasks'
+    | '/team'
+    | '/wallet'
+    | '/withdraw'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/deposit'
+    | '/login'
+    | '/me'
+    | '/plans'
+    | '/signup'
+    | '/tasks'
+    | '/team'
+    | '/wallet'
+    | '/withdraw'
+  id:
+    | '__root__'
+    | '/'
+    | '/deposit'
+    | '/login'
+    | '/me'
+    | '/plans'
+    | '/signup'
+    | '/tasks'
+    | '/team'
+    | '/wallet'
+    | '/withdraw'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DepositRoute: typeof DepositRoute
+  LoginRoute: typeof LoginRoute
+  MeRoute: typeof MeRoute
+  PlansRoute: typeof PlansRoute
+  SignupRoute: typeof SignupRoute
+  TasksRoute: typeof TasksRoute
+  TeamRoute: typeof TeamRoute
+  WalletRoute: typeof WalletRoute
+  WithdrawRoute: typeof WithdrawRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +169,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/deposit': {
+      id: '/deposit'
+      path: '/deposit'
+      fullPath: '/deposit'
+      preLoaderRoute: typeof DepositRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/me': {
+      id: '/me'
+      path: '/me'
+      fullPath: '/me'
+      preLoaderRoute: typeof MeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plans': {
+      id: '/plans'
+      path: '/plans'
+      fullPath: '/plans'
+      preLoaderRoute: typeof PlansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tasks': {
+      id: '/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof TasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/team': {
+      id: '/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof TeamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wallet': {
+      id: '/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof WalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/withdraw': {
+      id: '/withdraw'
+      path: '/withdraw'
+      fullPath: '/withdraw'
+      preLoaderRoute: typeof WithdrawRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DepositRoute: DepositRoute,
+  LoginRoute: LoginRoute,
+  MeRoute: MeRoute,
+  PlansRoute: PlansRoute,
+  SignupRoute: SignupRoute,
+  TasksRoute: TasksRoute,
+  TeamRoute: TeamRoute,
+  WalletRoute: WalletRoute,
+  WithdrawRoute: WithdrawRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

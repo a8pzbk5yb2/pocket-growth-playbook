@@ -28,3 +28,5 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- PowerBank screens share `src/components/pb/` (shell, header, bottom tabs, auth form parts); sample data and money rules live in `src/lib/demo-data.ts` so they stay testable.

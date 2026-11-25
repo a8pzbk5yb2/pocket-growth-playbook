@@ -288,3 +288,31 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .pb-security { display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 11px; margin-top: 25px; }
 .pb-security svg { color: var(--primary); width: 20px; height: 20px; }
 @media (max-width: 359px) { .pb-auth-panel { padding-inline: 19px; } .pb-auth-panel h1 { font-size: 27px; } .pb-signup .pb-auth-panel h1 { font-size: 23px; } .pb-list-card { gap: 8px; padding-inline: 9px; } .pb-plan-icon { width: 45px; height: 45px; } .pb-small-cta { padding-inline: 9px; } .pb-feature-banner h2 { font-size: 18px; } .pb-balance img { width: 120px; } }
+
+/* Prototype panels (admin + user web panel) */
+:root {
+  --primary: oklch(0.68 0.2 145);
+  --primary-deep: oklch(0.57 0.17 146);
+  --forest: oklch(0.37 0.09 152);
+  --forest-2: oklch(0.31 0.08 152);
+  --background: oklch(0.983 0.01 160);
+  --foreground: oklch(0.2 0 0);
+  --border: oklch(0.93 0.017 162);
+  --input: oklch(0.93 0.017 162);
+  --success: oklch(0.63 0.17 149);
+  --warning: oklch(0.77 0.16 70);
+  --destructive: oklch(0.64 0.21 25);
+  --gradient-forest: linear-gradient(180deg, var(--forest), var(--forest-2));
+  --gradient-banner: linear-gradient(110deg, var(--forest-2), var(--primary-deep) 60%, var(--primary));
+  --shadow-soft: 0 6px 24px oklch(0.3 0.06 155 / 0.07);
+}
+@theme inline {
+  --color-forest: var(--forest);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+}
+@utility bg-forest-gradient { background: var(--gradient-forest); }
+@utility bg-banner-gradient { background: var(--gradient-banner); }
+@utility shadow-soft { box-shadow: var(--shadow-soft); }
+@utility panel-card { background: var(--card); border: 1px solid var(--border); border-radius: 1.1rem; box-shadow: var(--shadow-soft); }
+@media print { .no-print { display: none !important; } }

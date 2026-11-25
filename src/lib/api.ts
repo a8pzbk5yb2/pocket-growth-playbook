@@ -46,3 +46,5 @@ export const api = {
   put: <T,>(p: string, b?: unknown) => request<T>("PUT", p, b ?? {}),
   del: <T,>(p: string) => request<T>("DELETE", p),
 };
+
+export type ApiUser = { id: string; name: string; mobile: string; status: "active" | "inactive" | "blocked"; joined: string };

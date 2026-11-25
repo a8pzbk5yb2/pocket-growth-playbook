@@ -73,7 +73,7 @@ function useDemoCore() {
     },
     logout: () => up(d => ({ ...d, currentUserId: null })),
     /** Puts a real signed-in account (from the PHP API) into the panels. */
-    useApiUser(a: { id: string; name: string; mobile: string; status: UserStatus; joined: string }) {
+    setApiUser(a: { id: string; name: string; mobile: string; status: UserStatus; joined: string }) {
       up(d => {
         const prev = d.users.find(u => u.id === a.id);
         const u: DemoUser = { ...(prev ?? { balance: 0, kyc: "pending", password: "", inviteCode: a.id }), id: a.id, name: a.name, mobile: a.mobile, status: a.status, joined: a.joined };

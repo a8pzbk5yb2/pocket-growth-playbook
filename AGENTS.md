@@ -32,3 +32,4 @@ use the editor.
 - PowerBank screens share `src/components/pb/` (shell, header, bottom tabs, auth form parts); sample data and money rules live in `src/lib/demo-data.ts` so they stay testable.
 - Admin (`/admin/*`) and user web panel (`/dashboard/*`) share in-memory demo state from `src/lib/demo-store.tsx` (React context in __root) so changes in one panel show in the other; it resets on refresh by design. Shared panel UI lives in `src/components/panel/`.
 - PHP API lives in `backend/` (deployed separately to Hostinger); the app talks to it only via `src/lib/api.ts` (cookie auth + CSRF header) because MySQL must never be reached from the browser.
+- The browser reaches the PHP API only through the same-site proxy route `src/routes/api/public/v1/$.ts`, because cross-domain sign-in cookies get blocked by browsers.

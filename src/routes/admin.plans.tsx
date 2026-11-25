@@ -34,7 +34,7 @@ function Plans() {
 }
 function PlanForm({ plan, close }: { plan: DemoPlan; close: () => void }) {
   const d = useDemo(); const [f, setF] = useState(plan);
-  const save = () => { if (!f.name.trim()) return toast.error("Plan name is required"); if (f.price <= 0 || f.daily < 0 || f.duration <= 0) return toast.error("Enter positive numbers"); d.savePlan({ ...f, name: f.name.trim() }); toast.success("Plan saved — updated everywhere"); close(); };
+  const save = () => { if (!f.name.trim()) { toast.error("Plan name is required"); return; } if (f.price <= 0 || f.daily < 0 || f.duration <= 0) { toast.error("Enter positive numbers"); return; } d.savePlan({ ...f, name: f.name.trim() }); toast.success("Plan saved — updated everywhere"); close(); };
   const num = (k: "price" | "daily" | "duration") => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: Number(e.target.value) });
   return <Dialog open onOpenChange={o => !o && close()}><DialogContent><DialogHeader><DialogTitle>{d.plans.some(p => p.id === plan.id) ? "Edit Plan" : "Add New Plan"}</DialogTitle></DialogHeader>
     <div className="grid grid-cols-2 gap-3"><div className="col-span-2"><Label>Plan Name</Label><Input value={f.name} maxLength={40} onChange={e => setF({ ...f, name: e.target.value })} /></div>

@@ -30,3 +30,4 @@ use the editor.
 <!-- LOVABLE:END -->
 
 - PowerBank screens share `src/components/pb/` (shell, header, bottom tabs, auth form parts); sample data and money rules live in `src/lib/demo-data.ts` so they stay testable.
+- Admin (`/admin/*`) and user web panel (`/dashboard/*`) share in-memory demo state from `src/lib/demo-store.tsx` (React context in __root) so changes in one panel show in the other; it resets on refresh by design. Shared panel UI lives in `src/components/panel/`.

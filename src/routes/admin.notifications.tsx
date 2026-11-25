@@ -14,7 +14,7 @@ export const Route = createFileRoute("/admin/notifications")({ head: () => meta(
 function Notes() {
   const d = useDemo(); const [title, setTitle] = useState(""); const [body, setBody] = useState(""); const [mode, setMode] = useState<"all" | "selected">("all"); const [sel, setSel] = useState<string[]>([]); const [busy, setBusy] = useState(false);
   const { slice, pager } = usePaged(d.notifications, 6);
-  const send = () => { if (!title.trim() || !body.trim()) return toast.error("Title and message are required"); if (mode === "selected" && !sel.length) return toast.error("Select at least one user");
+  const send = () => { if (!title.trim() || !body.trim()) { toast.error("Title and message are required"); return; } if (mode === "selected" && !sel.length) { toast.error("Select at least one user"); return; }
     setBusy(true); setTimeout(() => { d.notify(title.trim(), body.trim(), mode === "all" ? "all" : sel); setBusy(false); setTitle(""); setBody(""); setSel([]); toast.success("Demo notification sent"); }, 500); };
   return <div className="grid gap-4 xl:grid-cols-3">
     <Section title="Send Demo Notification" icon={Send}><div className="space-y-3"><div><Label>Title</Label><Input value={title} maxLength={80} onChange={e => setTitle(e.target.value)} /></div><div><Label>Message</Label><Textarea value={body} maxLength={300} onChange={e => setBody(e.target.value)} /></div>

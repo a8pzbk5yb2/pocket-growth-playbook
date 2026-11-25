@@ -20,7 +20,7 @@ export function Status({ s }: { s: string }) { return <span className={`inline-f
 export function StatCard({ icon: Icon, label, value, trend, color = "text-primary bg-primary/12", spark }: { icon: LucideIcon; label: string; value: ReactNode; trend?: string; color?: string; spark?: number[] }) {
   return <div className="panel-card relative overflow-hidden p-4 transition-transform hover:-translate-y-0.5">
     <div className="flex items-start gap-3"><span className={`grid h-12 w-12 place-items-center rounded-2xl ${color}`}><Icon className="h-6 w-6" /></span>
-      <div className="min-w-0 flex-1"><p className="text-sm text-muted-foreground">{label}</p><p className="truncate text-2xl font-extrabold">{value}</p></div>
+      <div className="min-w-0 flex-1"><p className="text-sm text-muted-foreground">{label}</p><p className="text-xl font-extrabold leading-tight 2xl:text-2xl">{value}</p></div>
       {trend && <span className="flex items-center gap-0.5 rounded-full bg-success/12 px-2 py-0.5 text-xs font-semibold text-success"><TrendingUp className="h-3 w-3" />{trend}</span>}</div>
     {spark && <div className="-mx-4 -mb-4 mt-1 h-10"><ResponsiveContainer><AreaChart data={spark.map(v => ({ v }))}><Area dataKey="v" type="monotone" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.12} strokeWidth={2} /></AreaChart></ResponsiveContainer></div>}
   </div>;

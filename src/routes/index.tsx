@@ -1,44 +1,29 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDownToLine, Bell, Plus, TrendingUp } from "lucide-react";
-import walletImg from "@/assets/pb-wallet.webp.asset.json";
-import { Card, EmptyState, Logo, MobileShell, meta } from "@/components/pb/shell";
+import { Bell, Plus, TrendingUp, Wallet } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import walletImg from "@/assets/powerbank-home.webp.asset.json";
+import { EmptyState, Logo, MobileShell, meta } from "@/components/pb/shell";
 import { inr, user } from "@/lib/demo-data";
 
-export const Route = createFileRoute("/")({
-  head: () => meta("Home", "Your PowerBank balance, earnings and quick actions."),
-  component: Home,
-});
-
+export const Route = createFileRoute("/")({ head: () => meta("Home", "Your PowerBank balance, earnings and quick actions."), component: Home });
 function Home() {
-  return (
-    <MobileShell>
-      <header className="rounded-b-[2rem] bg-gradient-primary px-5 pb-24 pt-6 text-primary-foreground">
-        <div className="flex items-center justify-between">
-          <Logo />
-          <button className="grid h-9 w-9 place-items-center rounded-full bg-primary-foreground/15" aria-label="Notifications"><Bell className="h-5 w-5" /></button>
-        </div>
-        <p className="mt-5 text-sm text-primary-foreground/80">Welcome back,</p>
-        <h1 className="text-2xl font-extrabold">{user.name} 👋</h1>
-      </header>
-      <div className="-mt-20 space-y-4 px-5">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-primary p-5 text-primary-foreground shadow-card ring-4 ring-card">
-          <p className="text-sm text-primary-foreground/80">Total Balance</p>
-          <p className="mt-1 text-4xl font-extrabold">₹0.00</p>
-          <img src={walletImg.url} alt="" className="absolute right-4 top-4 h-20 w-20 rounded-3xl bg-card object-contain p-1" />
-          <div className="mt-6 flex gap-2">
-            <Link to="/deposit" className="flex items-center gap-1 rounded-full bg-card px-4 py-2 text-sm font-bold text-primary"><Plus className="h-4 w-4" />Add Funds</Link>
-            <Link to="/withdraw" className="flex items-center gap-1 rounded-full border border-primary-foreground/50 px-4 py-2 text-sm font-bold"><ArrowDownToLine className="h-4 w-4" />Withdraw</Link>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Card><TrendingUp className="h-5 w-5 text-primary" /><p className="mt-2 text-xs text-muted-foreground">Withdrawable Earnings</p><p className="text-lg font-extrabold">{inr(user.earnings)}</p></Card>
-          <Card><Plus className="h-5 w-5 text-gold" /><p className="mt-2 text-xs text-muted-foreground">Deposit Funds</p><p className="text-lg font-extrabold">{inr(user.balance)}</p></Card>
-        </div>
-        <Card>
-          <div className="flex items-center justify-between"><h2 className="font-bold">Recent Transactions</h2><Link to="/wallet" className="text-sm font-semibold text-primary">See all</Link></div>
-          <EmptyState text="Add funds to start investing" />
-        </Card>
+  return <MobileShell>
+    <header className="pb-home-header">
+      <div className="flex items-center justify-between"><Logo /><Button variant="ghost" size="icon" aria-label="Notifications" className="text-primary-foreground hover:bg-primary-foreground/10"><Bell /></Button></div>
+      <h1>Welcome back,<br />{user.name} 👋</h1>
+    </header>
+    <main className="pb-content relative -mt-11">
+      <div className="pb-balance"><p className="pb-balance-label">Available Balance</p><p className="pb-balance-value">{inr(user.balance)}</p><img src={walletImg.url} alt="Wallet and gold coins" /></div>
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="pb-stat"><TrendingUp /><p className="pb-stat-label">Withdrawable<br />Earnings</p><p className="pb-stat-value">{inr(user.earnings)}</p></div>
+        <div className="pb-stat"><Wallet /><p className="pb-stat-label">Deposit Funds</p><p className="pb-stat-value">{inr(user.balance)}</p></div>
       </div>
-    </MobileShell>
-  );
+      <div className="my-4 grid grid-cols-2 gap-3">
+        <Button asChild className="h-11 rounded-full font-semibold"><Link to="/deposit"><Plus />Add Funds</Link></Button>
+        <Button asChild variant="outline" className="h-11 rounded-full border-primary bg-card font-semibold text-primary"><Link to="/withdraw">Withdraw</Link></Button>
+      </div>
+      <div className="rounded-[22px] bg-card"><EmptyState text="Start investing to see your transactions here." /></div>
+      <Link to="/wallet" className="mt-2 block text-center text-xs font-semibold text-primary">View all transactions</Link>
+    </main>
+  </MobileShell>;
 }

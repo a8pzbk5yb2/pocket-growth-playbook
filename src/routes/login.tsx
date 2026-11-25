@@ -15,7 +15,7 @@ function Login() {
       <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); nav({ to: "/" }); }}>
         <Field icon={Phone} prefix="+91" placeholder="Mobile Number" type="tel" />
         <Field icon={Lock} placeholder="Password" password />
-        <div className="text-right"><Link to="/login" className="text-sm font-semibold text-primary">Forgot Password?</Link></div>
+        <div className="text-right"><Link to="/login" className="text-sm font-semibold text-primary-deep">Forgot Password?</Link></div>
         <PrimaryButton type="submit">Log In</PrimaryButton>
       </form>
       <SwitchLink text="Don't have an account?" to="/signup" label="Sign Up" />

@@ -26,7 +26,7 @@ function Signup() {
         <Field icon={Lock} placeholder="Create Password" password />
         <Field icon={Lock} placeholder="Confirm Password" password />
         <Field icon={Gift} placeholder="Invitation Code (Optional)" />
-        <label className="flex items-start gap-2 py-1 text-sm text-muted-foreground">
+        <label className="flex items-start gap-2 py-1 text-[11px] leading-relaxed text-foreground">
           <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-4 w-4 accent-primary" />
           <span>I agree to the <b className="text-primary">Terms & Conditions</b> and <b className="text-primary">Privacy Policy</b></span>
         </label>

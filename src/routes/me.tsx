@@ -1,43 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BadgeCheck, Briefcase, ChevronRight, Headphones, Info, KeyRound, Landmark, LogOut, Newspaper } from "lucide-react";
+import { BadgeCheck, Briefcase, ChevronRight, Headphones, Info, KeyRound, Landmark, LogOut, Newspaper, Trophy, Users } from "lucide-react";
 import { toast } from "sonner";
-import { Card, Logo, MobileShell, meta } from "@/components/pb/shell";
+import { Button } from "@/components/ui/button";
+import avatar from "@/assets/powerbank-avatar.webp.asset.json";
+import { PageBar, MobileShell, meta } from "@/components/pb/shell";
 import { inr, user } from "@/lib/demo-data";
-
-export const Route = createFileRoute("/me")({
-  head: () => meta("Profile", "Your PowerBank profile, earnings and account settings."),
-  component: Me,
-});
-
-const menu = [
-  { l: "My Investments", i: Briefcase }, { l: "Bank/UPI Details", i: Landmark }, { l: "Contact Support", i: Headphones },
-  { l: "Change Password", i: KeyRound }, { l: "News & Updates", i: Newspaper }, { l: "About Us", i: Info },
-];
-
+export const Route = createFileRoute("/me")({ head: () => meta("Profile", "Your PowerBank profile, earnings and account settings."), component: Me });
+const menu = [{ l: "My Investments", i: Briefcase }, { l: "Bank/UPI Details", i: Landmark }, { l: "Contact Support", i: Headphones }, { l: "Change Password", i: KeyRound }, { l: "News & Updates", i: Newspaper }, { l: "About Us", i: Info }];
 function Me() {
-  return (
-    <MobileShell>
-      <header className="rounded-b-[50%_3rem] bg-gradient-primary px-5 pb-16 pt-6"><Logo /></header>
-      <div className="-mt-12 flex flex-col items-center px-5 text-center">
-        <div className="grid h-24 w-24 place-items-center rounded-full bg-card text-3xl font-extrabold text-primary shadow-card ring-4 ring-card">RK</div>
-        <h1 className="mt-3 text-xl font-extrabold">{user.name}</h1>
-        <p className="text-sm text-muted-foreground">User ID: {user.id}</p>
-        <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-bold text-primary"><BadgeCheck className="h-4 w-4" />Active Member</span>
-      </div>
-      <div className="space-y-4 px-5 pt-5">
-        <div className="grid grid-cols-2 gap-3">
-          <Card className="text-center"><p className="text-lg font-extrabold text-primary">{inr(user.earnings)}</p><p className="text-xs text-muted-foreground">Total Earnings</p></Card>
-          <Card className="text-center"><p className="text-lg font-extrabold text-primary">{user.team}</p><p className="text-xs text-muted-foreground">Team Members</p></Card>
-        </div>
-        <Card className="divide-y py-1">
-          {menu.map(({ l, i: I }) => (
-            <button key={l} onClick={() => toast(`${l} — coming soon`)} className="flex w-full items-center gap-3 py-3 text-left">
-              <I className="h-5 w-5 text-primary" /><span className="flex-1 text-sm font-semibold">{l}</span><ChevronRight className="h-4 w-4 text-muted-foreground" />
-            </button>
-          ))}
-          <Link to="/login" className="flex items-center gap-3 py-3 text-destructive"><LogOut className="h-5 w-5" /><span className="text-sm font-semibold">Logout</span></Link>
-        </Card>
-      </div>
-    </MobileShell>
-  );
+  return <MobileShell>
+    <header className="rounded-b-[50%_16px] bg-gradient-primary px-4 pb-14 text-primary-foreground"><PageBar title="Me" /></header>
+    <div className="relative -mt-12 flex flex-col items-center text-center"><div className="h-24 w-24 overflow-hidden rounded-full border-[3px] border-card bg-secondary shadow-card"><img src={avatar.url} alt="Riyaj Khan" className="h-full w-full object-contain object-bottom" /></div><h1 className="mt-2 text-xl font-bold">{user.name}</h1><p className="text-xs text-muted-foreground">User ID: {user.id}</p><span className="mt-2 flex items-center gap-1 rounded-full bg-primary px-3 py-0.5 text-[10px] font-semibold text-primary-foreground"><BadgeCheck className="h-3 w-3" />Active Member</span></div>
+    <main className="pb-content pt-4"><div className="mb-4 grid grid-cols-2 gap-3"><div className="pb-stat !min-h-24"><Trophy /><p className="pb-stat-label">Total Earnings</p><p className="pb-stat-value">{inr(user.earnings)}</p></div><div className="pb-stat !min-h-24"><Users /><p className="pb-stat-label">Team Members</p><p className="pb-stat-value">{user.team}</p></div></div>
+      <div className="pb-menu">{menu.map(({l,i:Icon}) => <Button variant="ghost" key={l} onClick={() => toast(`${l} — coming soon`)} className="pb-menu-row"><Icon /><span>{l}</span><ChevronRight /></Button>)}<Button variant="ghost" asChild className="pb-menu-row text-destructive"><Link to="/login"><LogOut className="!text-destructive" /><span>Logout</span><ChevronRight /></Link></Button></div>
+    </main>
+  </MobileShell>;
 }

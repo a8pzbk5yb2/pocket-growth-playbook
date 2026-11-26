@@ -1,3 +1,4 @@
+import { SignedIn } from "@/components/pb/signed-in";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Landmark, User } from "lucide-react";
@@ -7,12 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { meta } from "@/components/pb/shell";
+import { MobileShell, PageBar, meta } from "@/components/pb/shell";
 import { BankAccountsManager } from "@/components/panel/bank-accounts";
 import { Avatar, Section, Status } from "@/components/panel/ui";
 import { api, apiConfigured, errMessage, type ApiBankAccount, type ApiDashboard, type ApiTransaction, type ApiUser, type ApiWallet } from "@/lib/api";
 import { useMe } from "@/lib/use-me";
-export const Route = createFileRoute("/dashboard/profile")({ head: () => meta("My Profile", "Edit your PowerBank profile and preferences."), component: P });
+export const Route = createFileRoute("/profile")({ head: () => meta("My Profile", "Edit your PowerBank profile and preferences."), component: () => <SignedIn title="Profile & Password"><P /></SignedIn> });
 function P() {
   const { d, me } = useMe(); const qc = useQueryClient();
   const real = apiConfigured();
@@ -64,7 +65,7 @@ function P() {
     } catch (er) { toast.error(errMessage(er)); }
   };
 
-  return <div className="space-y-5">
+  return <MobileShell><header className="pb-green-header"><PageBar title="Profile & Password" backTo="/me" /></header><main className="pb-content space-y-4">
     <Section title="My Profile" icon={User}><div className="mb-4 flex items-center gap-4"><Avatar name={me.name} size="h-16 w-16 text-lg" /><div><p className="text-lg font-bold">{me.name}</p><p className="text-sm text-muted-foreground">User ID {me.id} · +91 {me.mobile}</p><div className="mt-1 flex gap-2"><Status s={me.status} />{!real && <Status s={me.kyc} />}</div></div></div>
       <form className="grid max-w-xl gap-3" onSubmit={e => void saveProfile(e)}>
         <div><Label>Full Name</Label><Input value={name} maxLength={60} onChange={e => setName(e.target.value)} /></div>
@@ -74,7 +75,7 @@ function P() {
           {pw && <div><Label>Current password (required to set new password)</Label><Input type="password" value={curPw} onChange={e => setCurPw(e.target.value)} /></div>}
         </>}
         <div><Label>New password (optional)</Label><Input type="password" value={pw} onChange={e => setPw(e.target.value)} /></div>
-        <Button className="w-40" disabled={busy}>{busy ? "Saving…" : "Save changes"}</Button>
+        <Button className="w-full rounded-full" disabled={busy}>{busy ? "Saving…" : "Save changes"}</Button>
       </form>
     </Section>
     {real && <Section title="Preferences"><div className="grid max-w-xl gap-3">
@@ -83,5 +84,5 @@ function P() {
       <div className="flex items-center justify-between rounded-xl border p-3 text-sm"><span>Language</span><select className="h-9 rounded-lg border bg-card px-3" value={language} onChange={e => void saveSettings({ notifyPush, notifySms, language: e.target.value as "en" | "hi" })}><option value="en">English</option><option value="hi">Hindi</option></select></div>
     </div></Section>}
     {real && <Section title="Bank Accounts" icon={Landmark}><BankAccountsManager accounts={walletQ.data?.bankAccounts ?? []} /></Section>}
-  </div>;
+  </main></MobileShell>;
 }

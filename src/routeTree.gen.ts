@@ -11,11 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DepositRouteImport } from './routes/deposit'
+import { Route as HistoryRouteImport } from './routes/history'
+import { Route as InvestmentsRouteImport } from './routes/investments'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MeRouteImport } from './routes/me'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as PlansRouteImport } from './routes/plans'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as TeamRouteImport } from './routes/team'
@@ -33,16 +36,6 @@ import { Route as AdminTasksRouteImport } from './routes/admin.tasks'
 import { Route as AdminTransactionsRouteImport } from './routes/admin.transactions'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
-import { Route as DashboardDepositsRouteImport } from './routes/dashboard.deposits'
-import { Route as DashboardInvestmentsRouteImport } from './routes/dashboard.investments'
-import { Route as DashboardNotificationsRouteImport } from './routes/dashboard.notifications'
-import { Route as DashboardPlansRouteImport } from './routes/dashboard.plans'
-import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
-import { Route as DashboardReferralsRouteImport } from './routes/dashboard.referrals'
-import { Route as DashboardTasksRouteImport } from './routes/dashboard.tasks'
-import { Route as DashboardTransactionsRouteImport } from './routes/dashboard.transactions'
-import { Route as DashboardWithdrawalsRouteImport } from './routes/dashboard.withdrawals'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -55,14 +48,19 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DepositRoute = DepositRouteImport.update({
   id: '/deposit',
   path: '/deposit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestmentsRoute = InvestmentsRouteImport.update({
+  id: '/investments',
+  path: '/investments',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -75,9 +73,19 @@ const MeRoute = MeRouteImport.update({
   path: '/me',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlansRoute = PlansRouteImport.update({
   id: '/plans',
   path: '/plans',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -165,56 +173,6 @@ const AdminWithdrawalsRoute = AdminWithdrawalsRouteImport.update({
   path: '/withdrawals',
   getParentRoute: () => AdminRoute,
 } as any)
-const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardDepositsRoute = DashboardDepositsRouteImport.update({
-  id: '/deposits',
-  path: '/deposits',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardInvestmentsRoute = DashboardInvestmentsRouteImport.update({
-  id: '/investments',
-  path: '/investments',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardNotificationsRoute = DashboardNotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardPlansRoute = DashboardPlansRouteImport.update({
-  id: '/plans',
-  path: '/plans',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardProfileRoute = DashboardProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardReferralsRoute = DashboardReferralsRouteImport.update({
-  id: '/referrals',
-  path: '/referrals',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardTasksRoute = DashboardTasksRouteImport.update({
-  id: '/tasks',
-  path: '/tasks',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardTransactionsRoute = DashboardTransactionsRouteImport.update({
-  id: '/transactions',
-  path: '/transactions',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardWithdrawalsRoute = DashboardWithdrawalsRouteImport.update({
-  id: '/withdrawals',
-  path: '/withdrawals',
-  getParentRoute: () => DashboardRoute,
-} as any)
 const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
   id: '/api/public/v1/$',
   path: '/api/public/v1/$',
@@ -224,11 +182,14 @@ const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/dashboard': typeof DashboardRouteWithChildren
   '/deposit': typeof DepositRoute
+  '/history': typeof HistoryRoute
+  '/investments': typeof InvestmentsRoute
   '/login': typeof LoginRoute
   '/me': typeof MeRoute
+  '/notifications': typeof NotificationsRoute
   '/plans': typeof PlansRoute
+  '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/tasks': typeof TasksRoute
   '/team': typeof TeamRoute
@@ -245,25 +206,19 @@ export interface FileRoutesByFullPath {
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
-  '/dashboard/deposits': typeof DashboardDepositsRoute
-  '/dashboard/investments': typeof DashboardInvestmentsRoute
-  '/dashboard/notifications': typeof DashboardNotificationsRoute
-  '/dashboard/plans': typeof DashboardPlansRoute
-  '/dashboard/profile': typeof DashboardProfileRoute
-  '/dashboard/referrals': typeof DashboardReferralsRoute
-  '/dashboard/tasks': typeof DashboardTasksRoute
-  '/dashboard/transactions': typeof DashboardTransactionsRoute
-  '/dashboard/withdrawals': typeof DashboardWithdrawalsRoute
   '/admin/': typeof AdminIndexRoute
-  '/dashboard/': typeof DashboardIndexRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/deposit': typeof DepositRoute
+  '/history': typeof HistoryRoute
+  '/investments': typeof InvestmentsRoute
   '/login': typeof LoginRoute
   '/me': typeof MeRoute
+  '/notifications': typeof NotificationsRoute
   '/plans': typeof PlansRoute
+  '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/tasks': typeof TasksRoute
   '/team': typeof TeamRoute
@@ -280,28 +235,21 @@ export interface FileRoutesByTo {
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
-  '/dashboard/deposits': typeof DashboardDepositsRoute
-  '/dashboard/investments': typeof DashboardInvestmentsRoute
-  '/dashboard/notifications': typeof DashboardNotificationsRoute
-  '/dashboard/plans': typeof DashboardPlansRoute
-  '/dashboard/profile': typeof DashboardProfileRoute
-  '/dashboard/referrals': typeof DashboardReferralsRoute
-  '/dashboard/tasks': typeof DashboardTasksRoute
-  '/dashboard/transactions': typeof DashboardTransactionsRoute
-  '/dashboard/withdrawals': typeof DashboardWithdrawalsRoute
   '/admin': typeof AdminIndexRoute
-  '/dashboard': typeof DashboardIndexRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/dashboard': typeof DashboardRouteWithChildren
   '/deposit': typeof DepositRoute
+  '/history': typeof HistoryRoute
+  '/investments': typeof InvestmentsRoute
   '/login': typeof LoginRoute
   '/me': typeof MeRoute
+  '/notifications': typeof NotificationsRoute
   '/plans': typeof PlansRoute
+  '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/tasks': typeof TasksRoute
   '/team': typeof TeamRoute
@@ -318,17 +266,7 @@ export interface FileRoutesById {
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
-  '/dashboard/deposits': typeof DashboardDepositsRoute
-  '/dashboard/investments': typeof DashboardInvestmentsRoute
-  '/dashboard/notifications': typeof DashboardNotificationsRoute
-  '/dashboard/plans': typeof DashboardPlansRoute
-  '/dashboard/profile': typeof DashboardProfileRoute
-  '/dashboard/referrals': typeof DashboardReferralsRoute
-  '/dashboard/tasks': typeof DashboardTasksRoute
-  '/dashboard/transactions': typeof DashboardTransactionsRoute
-  '/dashboard/withdrawals': typeof DashboardWithdrawalsRoute
   '/admin/': typeof AdminIndexRoute
-  '/dashboard/': typeof DashboardIndexRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
 }
 export interface FileRouteTypes {
@@ -336,11 +274,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
-    | '/dashboard'
     | '/deposit'
+    | '/history'
+    | '/investments'
     | '/login'
     | '/me'
+    | '/notifications'
     | '/plans'
+    | '/profile'
     | '/signup'
     | '/tasks'
     | '/team'
@@ -357,25 +298,19 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/users'
     | '/admin/withdrawals'
-    | '/dashboard/deposits'
-    | '/dashboard/investments'
-    | '/dashboard/notifications'
-    | '/dashboard/plans'
-    | '/dashboard/profile'
-    | '/dashboard/referrals'
-    | '/dashboard/tasks'
-    | '/dashboard/transactions'
-    | '/dashboard/withdrawals'
     | '/admin/'
-    | '/dashboard/'
     | '/api/public/v1/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/deposit'
+    | '/history'
+    | '/investments'
     | '/login'
     | '/me'
+    | '/notifications'
     | '/plans'
+    | '/profile'
     | '/signup'
     | '/tasks'
     | '/team'
@@ -392,27 +327,20 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/users'
     | '/admin/withdrawals'
-    | '/dashboard/deposits'
-    | '/dashboard/investments'
-    | '/dashboard/notifications'
-    | '/dashboard/plans'
-    | '/dashboard/profile'
-    | '/dashboard/referrals'
-    | '/dashboard/tasks'
-    | '/dashboard/transactions'
-    | '/dashboard/withdrawals'
     | '/admin'
-    | '/dashboard'
     | '/api/public/v1/$'
   id:
     | '__root__'
     | '/'
     | '/admin'
-    | '/dashboard'
     | '/deposit'
+    | '/history'
+    | '/investments'
     | '/login'
     | '/me'
+    | '/notifications'
     | '/plans'
+    | '/profile'
     | '/signup'
     | '/tasks'
     | '/team'
@@ -429,28 +357,21 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/users'
     | '/admin/withdrawals'
-    | '/dashboard/deposits'
-    | '/dashboard/investments'
-    | '/dashboard/notifications'
-    | '/dashboard/plans'
-    | '/dashboard/profile'
-    | '/dashboard/referrals'
-    | '/dashboard/tasks'
-    | '/dashboard/transactions'
-    | '/dashboard/withdrawals'
     | '/admin/'
-    | '/dashboard/'
     | '/api/public/v1/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
-  DashboardRoute: typeof DashboardRouteWithChildren
   DepositRoute: typeof DepositRoute
+  HistoryRoute: typeof HistoryRoute
+  InvestmentsRoute: typeof InvestmentsRoute
   LoginRoute: typeof LoginRoute
   MeRoute: typeof MeRoute
+  NotificationsRoute: typeof NotificationsRoute
   PlansRoute: typeof PlansRoute
+  ProfileRoute: typeof ProfileRoute
   SignupRoute: typeof SignupRoute
   TasksRoute: typeof TasksRoute
   TeamRoute: typeof TeamRoute
@@ -475,18 +396,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/deposit': {
       id: '/deposit'
       path: '/deposit'
       fullPath: '/deposit'
       preLoaderRoute: typeof DepositRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/investments': {
+      id: '/investments'
+      path: '/investments'
+      fullPath: '/investments'
+      preLoaderRoute: typeof InvestmentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -503,11 +431,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/plans': {
       id: '/plans'
       path: '/plans'
       fullPath: '/plans'
       preLoaderRoute: typeof PlansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -629,76 +571,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminWithdrawalsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/dashboard/': {
-      id: '/dashboard/'
-      path: '/'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/deposits': {
-      id: '/dashboard/deposits'
-      path: '/deposits'
-      fullPath: '/dashboard/deposits'
-      preLoaderRoute: typeof DashboardDepositsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/investments': {
-      id: '/dashboard/investments'
-      path: '/investments'
-      fullPath: '/dashboard/investments'
-      preLoaderRoute: typeof DashboardInvestmentsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/notifications': {
-      id: '/dashboard/notifications'
-      path: '/notifications'
-      fullPath: '/dashboard/notifications'
-      preLoaderRoute: typeof DashboardNotificationsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/plans': {
-      id: '/dashboard/plans'
-      path: '/plans'
-      fullPath: '/dashboard/plans'
-      preLoaderRoute: typeof DashboardPlansRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/profile': {
-      id: '/dashboard/profile'
-      path: '/profile'
-      fullPath: '/dashboard/profile'
-      preLoaderRoute: typeof DashboardProfileRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/referrals': {
-      id: '/dashboard/referrals'
-      path: '/referrals'
-      fullPath: '/dashboard/referrals'
-      preLoaderRoute: typeof DashboardReferralsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tasks': {
-      id: '/dashboard/tasks'
-      path: '/tasks'
-      fullPath: '/dashboard/tasks'
-      preLoaderRoute: typeof DashboardTasksRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/transactions': {
-      id: '/dashboard/transactions'
-      path: '/transactions'
-      fullPath: '/dashboard/transactions'
-      preLoaderRoute: typeof DashboardTransactionsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/withdrawals': {
-      id: '/dashboard/withdrawals'
-      path: '/withdrawals'
-      fullPath: '/dashboard/withdrawals'
-      preLoaderRoute: typeof DashboardWithdrawalsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
     '/api/public/v1/$': {
       id: '/api/public/v1/$'
       path: '/api/public/v1/$'
@@ -741,44 +613,17 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
-interface DashboardRouteChildren {
-  DashboardDepositsRoute: typeof DashboardDepositsRoute
-  DashboardInvestmentsRoute: typeof DashboardInvestmentsRoute
-  DashboardNotificationsRoute: typeof DashboardNotificationsRoute
-  DashboardPlansRoute: typeof DashboardPlansRoute
-  DashboardProfileRoute: typeof DashboardProfileRoute
-  DashboardReferralsRoute: typeof DashboardReferralsRoute
-  DashboardTasksRoute: typeof DashboardTasksRoute
-  DashboardTransactionsRoute: typeof DashboardTransactionsRoute
-  DashboardWithdrawalsRoute: typeof DashboardWithdrawalsRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
-}
-
-const DashboardRouteChildren: DashboardRouteChildren = {
-  DashboardDepositsRoute: DashboardDepositsRoute,
-  DashboardInvestmentsRoute: DashboardInvestmentsRoute,
-  DashboardNotificationsRoute: DashboardNotificationsRoute,
-  DashboardPlansRoute: DashboardPlansRoute,
-  DashboardProfileRoute: DashboardProfileRoute,
-  DashboardReferralsRoute: DashboardReferralsRoute,
-  DashboardTasksRoute: DashboardTasksRoute,
-  DashboardTransactionsRoute: DashboardTransactionsRoute,
-  DashboardWithdrawalsRoute: DashboardWithdrawalsRoute,
-  DashboardIndexRoute: DashboardIndexRoute,
-}
-
-const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
-  DashboardRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
-  DashboardRoute: DashboardRouteWithChildren,
   DepositRoute: DepositRoute,
+  HistoryRoute: HistoryRoute,
+  InvestmentsRoute: InvestmentsRoute,
   LoginRoute: LoginRoute,
   MeRoute: MeRoute,
+  NotificationsRoute: NotificationsRoute,
   PlansRoute: PlansRoute,
+  ProfileRoute: ProfileRoute,
   SignupRoute: SignupRoute,
   TasksRoute: TasksRoute,
   TeamRoute: TeamRoute,

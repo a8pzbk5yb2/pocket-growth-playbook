@@ -60,7 +60,7 @@ function WalletPage() {
         <Button variant="ghost" asChild className="pb-menu-row"><Link to="/deposit"><Plus /><span>Add Money</span><ChevronRight /></Link></Button>
         <Button variant="ghost" asChild className="pb-menu-row"><Link to="/withdraw"><ArrowDownToLine /><span>Withdraw Money</span><ChevronRight /></Link></Button>
         {real ? (
-          <Button variant="ghost" asChild className="pb-menu-row"><Link to="/dashboard/transactions"><History /><span>Transaction History</span><ChevronRight /></Link></Button>
+          <Button variant="ghost" asChild className="pb-menu-row"><Link to="/history"><History /><span>Transaction History</span><ChevronRight /></Link></Button>
         ) : (
           <Button variant="ghost" onClick={() => toast("No history yet")} className="pb-menu-row"><History /><span>Transaction History</span><ChevronRight /></Button>
         )}

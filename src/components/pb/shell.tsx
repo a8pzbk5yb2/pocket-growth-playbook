@@ -23,7 +23,7 @@ export function MobileShell({ children, nav = true }: { children: ReactNode; nav
   </div></div>;
 }
 
-export function PageBar({ title, backTo = "/" }: { title: string; backTo?: "/" | "/wallet" }) {
+export function PageBar({ title, backTo = "/" }: { title: string; backTo?: "/" | "/wallet" | "/me" }) {
   return <div className="pb-page-bar"><Button asChild variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10"><Link to={backTo} aria-label="Back"><ChevronLeft /></Link></Button><h1>{title}</h1><span className="w-9" /></div>;
 }
 

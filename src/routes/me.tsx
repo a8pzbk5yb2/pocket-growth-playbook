@@ -60,10 +60,10 @@ function Me() {
         <main className="pb-content pt-4"><div className="mb-4 grid grid-cols-2 gap-3"><div className="pb-stat !min-h-24"><Trophy /><p className="pb-stat-label">Total Earnings</p><p className="pb-stat-value">{inr(earnings)}</p></div><div className="pb-stat !min-h-24"><Users /><p className="pb-stat-label">Team Members</p><p className="pb-stat-value">{teamCount}</p></div></div>
           {real ? (
             <div className="pb-menu">
-              <Button variant="ghost" asChild className="pb-menu-row"><Link to="/dashboard/investments"><Briefcase /><span>My Investments</span><ChevronRight /></Link></Button>
+              <Button variant="ghost" asChild className="pb-menu-row"><Link to="/investments"><Briefcase /><span>My Investments</span><ChevronRight /></Link></Button>
               <Button variant="ghost" onClick={() => setBankOpen(true)} className="pb-menu-row"><Landmark /><span>Bank Accounts</span><ChevronRight /></Button>
-              <Button variant="ghost" asChild className="pb-menu-row"><Link to="/dashboard/notifications"><Bell /><span>Notifications</span><ChevronRight /></Link></Button>
-              <Button variant="ghost" asChild className="pb-menu-row"><Link to="/dashboard/profile"><KeyRound /><span>Profile & Password</span><ChevronRight /></Link></Button>
+              <Button variant="ghost" asChild className="pb-menu-row"><Link to="/notifications"><Bell /><span>Notifications</span><ChevronRight /></Link></Button>
+              <Button variant="ghost" asChild className="pb-menu-row"><Link to="/profile"><KeyRound /><span>Profile & Password</span><ChevronRight /></Link></Button>
               <Button variant="ghost" onClick={logout} className="pb-menu-row text-destructive"><LogOut className="!text-destructive" /><span>Logout</span><ChevronRight /></Button>
             </div>
           ) : (

@@ -28,7 +28,7 @@ function Home() {
         <Logo />
         {real ? (
           <Button asChild variant="ghost" size="icon" aria-label="Notifications" className="relative text-primary-foreground hover:bg-primary-foreground/10">
-            <Link to={guest ? "/login" : "/dashboard/notifications"}>
+            <Link to={guest ? "/login" : "/notifications"}>
               <Bell />
               {(dash?.unreadNotifications ?? 0) > 0 && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-lime" />}
             </Link>

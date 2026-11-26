@@ -38,7 +38,7 @@ export async function request<T>(method: "GET" | "POST" | "PUT" | "DELETE", path
   const json = (await res.json().catch(() => null)) as Envelope<T> | null;
   if (res.status === 401 && retry && !path.includes("/auth/") && (await tryRefresh(path))) return request<T>(method, path, body, false);
   if (res.status === 403 && json && !json.success && json.error.code === "csrf" && retry) { csrf = null; return request<T>(method, path, body, false); }
-  if (!json) throw new ApiError(res.status, "bad_response", "Unexpected server response.");
+  if (!json) throw new ApiError(res.status, "bad_response", res.status === 429 ? "Server is blocking requests right now (Hostinger protection). Please try again shortly." : `Unexpected server response (${res.status}).`);
   if (!json.success) throw new ApiError(res.status, json.error.code, json.error.message, json.error.fields ?? {});
   return json.data;
 }

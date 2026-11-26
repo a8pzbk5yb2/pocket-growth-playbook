@@ -28,5 +28,17 @@ return [
 
   'GET /admin/notifications' => fn() => admin_notifications_list(),
   'POST /admin/notifications' => fn() => admin_notifications_send(),
+
+  'GET /admin/deposits' => fn() => admin_deposits_list(),
+  'GET /admin/withdrawals' => fn() => admin_withdrawals_list(),
+  'POST /admin/withdrawals/{id}/approve' => fn(array $p) => admin_withdrawal_approve($p['id'] ?? ''),
+  'POST /admin/withdrawals/{id}/reject' => fn(array $p) => admin_withdrawal_reject($p['id'] ?? ''),
+  'GET /admin/investments' => fn() => admin_investments_list(),
+  'PUT /admin/investments/{id}' => fn(array $p) => admin_investment_update($p['id'] ?? ''),
+  'GET /admin/transactions' => fn() => admin_transactions_list(),
+  'GET /admin/tasks' => fn() => admin_tasks_list(),
+  'POST /admin/tasks' => fn() => admin_task_create(),
+  'PUT /admin/tasks/{id}' => fn(array $p) => admin_task_update($p['id'] ?? ''),
+  'DELETE /admin/tasks/{id}' => fn(array $p) => admin_task_delete($p['id'] ?? ''),
 ];
 

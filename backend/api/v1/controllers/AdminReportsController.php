@@ -12,6 +12,10 @@ function admin_overview(): never {
   }
   $referrals = (int)$p->query('SELECT COUNT(*) FROM referrals')->fetchColumn();
   $plans = (int)$p->query("SELECT COUNT(*) FROM plans WHERE status = 'active' AND deleted_at IS NULL")->fetchColumn();
+  $totalDeposited = paise_to_inr((int)$p->query("SELECT COALESCE(SUM(amount_paise), 0) FROM deposits WHERE status = 'success'")->fetchColumn());
+  $totalWithdrawn = paise_to_inr((int)$p->query("SELECT COALESCE(SUM(amount_paise), 0) FROM withdrawals WHERE status = 'success'")->fetchColumn());
+  $activeInvestments = (int)$p->query("SELECT COUNT(*) FROM investments WHERE status = 'active'")->fetchColumn();
+  $pendingWithdrawals = (int)$p->query("SELECT COUNT(*) FROM withdrawals WHERE status = 'pending'")->fetchColumn();
 
   $recentUsers = array_map(fn($u) => [
     'id' => $u['public_id'],
@@ -30,42 +34,86 @@ function admin_overview(): never {
     'date' => iso_utc($l['created_at']),
   ], $p->query('SELECT l.*, a.username FROM admin_activity_logs l LEFT JOIN admin_users a ON a.id = l.admin_id ORDER BY l.id DESC LIMIT 8')->fetchAll());
 
+  $recentTransactions = array_map(fn($t) => tx_out($t) + ['userId' => $t['user_public_id'], 'userName' => $t['user_name']],
+    $p->query('SELECT t.*, u.public_id AS user_public_id, u.full_name AS user_name FROM wallet_transactions t JOIN users u ON u.id = t.user_id ORDER BY t.id DESC LIMIT 5')->fetchAll());
+
+  $pendingRequests = array_map(fn($w) => withdrawal_out($w) + ['userId' => $w['user_public_id'], 'userName' => $w['user_name']],
+    $p->query("SELECT w.*, u.public_id AS user_public_id, u.full_name AS user_name FROM withdrawals w JOIN users u ON u.id = w.user_id WHERE w.status = 'pending' ORDER BY w.id DESC LIMIT 5")->fetchAll());
+
+  $revRows = $p->query("SELECT DATE_FORMAT(COALESCE(paid_at, created_at), '%Y-%m') AS m, SUM(amount_paise) AS amt FROM deposits WHERE status = 'success' GROUP BY m ORDER BY m ASC LIMIT 12")->fetchAll();
+  $revenueSeries = array_map(fn($r) => ['m' => $r['m'], 'v' => paise_to_inr((int)$r['amt'])], $revRows);
+
+  $ugRows = $p->query("SELECT DATE_FORMAT(created_at, '%Y-%m') AS m, COUNT(*) AS c FROM users WHERE deleted_at IS NULL GROUP BY m ORDER BY m ASC LIMIT 12")->fetchAll();
+  $userGrowthSeries = array_map(fn($r) => ['m' => $r['m'], 'v' => (int)$r['c']], $ugRows);
+
   ok([
     'users' => $counts,
     'referrals' => $referrals,
     'activePlans' => $plans,
+    'totalDeposited' => $totalDeposited,
+    'totalWithdrawn' => $totalWithdrawn,
+    'activeInvestments' => $activeInvestments,
+    'pendingWithdrawals' => $pendingWithdrawals,
     'recentUsers' => $recentUsers,
     'recentLogs' => $recentLogs,
+    'recentTransactions' => $recentTransactions,
+    'pendingRequests' => $pendingRequests,
+    'revenueSeries' => $revenueSeries,
+    'userGrowthSeries' => $userGrowthSeries,
   ]);
 }
 
 function admin_reports(): never {
   require_admin('viewer');
-  $kind = ($_GET['kind'] ?? 'Users') === 'Referrals' ? 'Referrals' : 'Users';
+  $allowed = ['Users', 'Referrals', 'Deposits', 'Withdrawals', 'Investments', 'Transactions'];
+  $kind = in_array($_GET['kind'] ?? 'Users', $allowed, true) ? (string)$_GET['kind'] : 'Users';
   $from = is_string($_GET['from'] ?? null) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['from']) ? $_GET['from'] : '';
   $to = is_string($_GET['to'] ?? null) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['to']) ? $_GET['to'] : '';
 
   $p = db();
+  $dateWhere = function (string $col) use ($from, $to): array {
+    $w = ['1=1']; $pr = [];
+    if ($from !== '') { $w[] = "$col >= ?"; $pr[] = "$from 00:00:00"; }
+    if ($to !== '') { $w[] = "$col <= ?"; $pr[] = "$to 23:59:59"; }
+    return [implode(' AND ', $w), $pr];
+  };
+
   if ($kind === 'Users') {
-    $where = ['deleted_at IS NULL']; $params = [];
-    if ($from !== '') { $where[] = 'created_at >= ?'; $params[] = "$from 00:00:00"; }
-    if ($to !== '') { $where[] = 'created_at <= ?'; $params[] = "$to 23:59:59"; }
-    $s = $p->prepare('SELECT public_id, full_name, status, created_at FROM users WHERE ' . implode(' AND ', $where) . ' ORDER BY created_at ASC LIMIT 1000');
+    [$dw, $params] = $dateWhere('created_at');
+    $s = $p->prepare("SELECT public_id, full_name, created_at FROM users WHERE deleted_at IS NULL AND $dw ORDER BY created_at ASC LIMIT 1000");
     $s->execute($params);
     $rows = array_map(fn($r) => ['date' => iso_utc($r['created_at']), 'label' => "{$r['full_name']} ({$r['public_id']})", 'amount' => 1], $s->fetchAll());
-  } else {
-    $where = ['u.deleted_at IS NULL']; $params = [];
-    if ($from !== '') { $where[] = 'r.created_at >= ?'; $params[] = "$from 00:00:00"; }
-    if ($to !== '') { $where[] = 'r.created_at <= ?'; $params[] = "$to 23:59:59"; }
-    $s = $p->prepare('SELECT u.full_name, ic.code, r.created_at FROM referrals r JOIN users u ON u.id = r.referred_user_id JOIN invitation_codes ic ON ic.id = r.invitation_code_id WHERE ' . implode(' AND ', $where) . ' ORDER BY r.created_at ASC LIMIT 1000');
+  } elseif ($kind === 'Referrals') {
+    [$dw, $params] = $dateWhere('r.created_at');
+    $s = $p->prepare("SELECT u.full_name, ic.code, r.created_at FROM referrals r JOIN users u ON u.id = r.referred_user_id JOIN invitation_codes ic ON ic.id = r.invitation_code_id WHERE u.deleted_at IS NULL AND $dw ORDER BY r.created_at ASC LIMIT 1000");
     $s->execute($params);
     $rows = array_map(fn($r) => ['date' => iso_utc($r['created_at']), 'label' => "{$r['full_name']} via {$r['code']}", 'amount' => 1], $s->fetchAll());
+  } elseif ($kind === 'Deposits') {
+    [$dw, $params] = $dateWhere('d.created_at');
+    $s = $p->prepare("SELECT d.order_id, d.amount_paise, d.status, d.created_at, u.full_name FROM deposits d JOIN users u ON u.id = d.user_id WHERE $dw ORDER BY d.created_at ASC LIMIT 1000");
+    $s->execute($params);
+    $rows = array_map(fn($r) => ['date' => iso_utc($r['created_at']), 'label' => "{$r['order_id']} · {$r['full_name']} ({$r['status']})", 'amount' => paise_to_inr((int)$r['amount_paise'])], $s->fetchAll());
+  } elseif ($kind === 'Withdrawals') {
+    [$dw, $params] = $dateWhere('w.created_at');
+    $s = $p->prepare("SELECT w.order_id, w.amount_paise, w.status, w.created_at, u.full_name FROM withdrawals w JOIN users u ON u.id = w.user_id WHERE $dw ORDER BY w.created_at ASC LIMIT 1000");
+    $s->execute($params);
+    $rows = array_map(fn($r) => ['date' => iso_utc($r['created_at']), 'label' => "{$r['order_id']} · {$r['full_name']} ({$r['status']})", 'amount' => paise_to_inr((int)$r['amount_paise'])], $s->fetchAll());
+  } elseif ($kind === 'Investments') {
+    [$dw, $params] = $dateWhere('i.started_at');
+    $s = $p->prepare("SELECT i.public_id, i.amount_paise, i.status, i.started_at, pl.name AS plan_name FROM investments i JOIN plans pl ON pl.id = i.plan_id WHERE $dw ORDER BY i.started_at ASC LIMIT 1000");
+    $s->execute($params);
+    $rows = array_map(fn($r) => ['date' => iso_utc($r['started_at']), 'label' => "{$r['public_id']} · {$r['plan_name']} ({$r['status']})", 'amount' => paise_to_inr((int)$r['amount_paise'])], $s->fetchAll());
+  } else {
+    [$dw, $params] = $dateWhere('t.created_at');
+    $s = $p->prepare("SELECT t.tx_ref, t.type, t.amount_paise, t.created_at FROM wallet_transactions t WHERE $dw ORDER BY t.created_at ASC LIMIT 1000");
+    $s->execute($params);
+    $rows = array_map(fn($r) => ['date' => iso_utc($r['created_at']), 'label' => "{$r['tx_ref']} {$r['type']}", 'amount' => paise_to_inr((int)$r['amount_paise'])], $s->fetchAll());
   }
 
   $byMonthMap = [];
   foreach ($rows as $r) {
     $m = substr((string)$r['date'], 0, 7);
-    $byMonthMap[$m] = ($byMonthMap[$m] ?? 0) + $r['amount'];
+    $byMonthMap[$m] = round(($byMonthMap[$m] ?? 0) + $r['amount'], 2);
   }
   ksort($byMonthMap);
   $byMonth = [];

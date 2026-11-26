@@ -44,7 +44,13 @@ function user_plans(): never {
 function user_dashboard(): never {
   $u = require_user();
   $uid = (int)$u['id'];
+  accrue_user_earnings($uid);
   $p = db();
+  ensure_wallet($p, $uid);
+
+  $ws = $p->prepare('SELECT * FROM wallets WHERE user_id = ?');
+  $ws->execute([$uid]);
+  $wallet = $ws->fetch();
 
   $ps = $p->prepare('SELECT display_name, city, avatar_url FROM user_profiles WHERE user_id = ?');
   $ps->execute([$uid]);
@@ -66,10 +72,26 @@ function user_dashboard(): never {
   $ns->execute([$uid, $uid]);
   $recentNotes = array_map('notification_out', $ns->fetchAll());
 
+  $is = $p->prepare('SELECT i.*, pl.name AS plan_name FROM investments i JOIN plans pl ON pl.id = i.plan_id WHERE i.user_id = ? ORDER BY i.id DESC LIMIT 10');
+  $is->execute([$uid]);
+  $investments = array_map('investment_out', $is->fetchAll());
+
+  $invSum = $p->prepare('SELECT COALESCE(SUM(amount_paise), 0) FROM investments WHERE user_id = ?');
+  $invSum->execute([$uid]);
+  $totalInvested = paise_to_inr((int)$invSum->fetchColumn());
+
+  $ts = $p->prepare('SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY id DESC LIMIT 5');
+  $ts->execute([$uid]);
+  $recentTx = array_map('tx_out', $ts->fetchAll());
+
   $plans = array_map('plan_out', $p->query("SELECT * FROM plans WHERE status = 'active' AND deleted_at IS NULL ORDER BY sort_order ASC, id ASC")->fetchAll());
 
   ok([
     'user' => user_out($u),
+    'wallet' => wallet_out($wallet),
+    'totalInvested' => $totalInvested,
+    'investments' => $investments,
+    'recentTransactions' => $recentTx,
     'profile' => [
       'displayName' => $prof['display_name'] ?? $u['full_name'],
       'city' => $prof['city'] ?? '',
@@ -154,18 +176,25 @@ function user_referrals(): never {
   $by->execute([$uid]);
   $invRow = $by->fetch();
 
-  $rows = $p->prepare('SELECT u.public_id, u.full_name, u.status, r.created_at FROM referrals r JOIN users u ON u.id = r.referred_user_id WHERE r.referrer_user_id = ? AND u.deleted_at IS NULL ORDER BY r.created_at DESC, r.id DESC');
+  $rows = $p->prepare('SELECT u.public_id, u.full_name, u.status, r.created_at, r.reward_paise FROM referrals r JOIN users u ON u.id = r.referred_user_id WHERE r.referrer_user_id = ? AND u.deleted_at IS NULL ORDER BY r.created_at DESC, r.id DESC');
   $rows->execute([$uid]);
-  $list = array_map(fn($r) => [
-    'id' => $r['public_id'],
-    'name' => $r['full_name'],
-    'status' => $r['status'],
-    'joined' => iso_utc($r['created_at']),
-  ], $rows->fetchAll());
+  $raw = $rows->fetchAll();
+  $bonusPaise = 0;
+  $list = array_map(function ($r) use (&$bonusPaise) {
+    $bonusPaise += (int)$r['reward_paise'];
+    return [
+      'id' => $r['public_id'],
+      'name' => $r['full_name'],
+      'status' => $r['status'],
+      'reward' => paise_to_inr((int)$r['reward_paise']),
+      'joined' => iso_utc($r['created_at']),
+    ];
+  }, $raw);
 
   ok([
     'inviteCode' => $inviteCode,
     'invitedBy' => $invRow ? ['code' => $invRow['code'], 'name' => $invRow['referrer_name'] ?? 'PowerBank'] : null,
+    'bonusEarned' => paise_to_inr($bonusPaise),
     'referrals' => $list,
   ]);
 }

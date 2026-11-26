@@ -221,5 +221,86 @@ assert_ok($logs['status'] === 200 && count($logs['json']['data']['items']) >= 5,
 $settPut = $adm->req('PUT', '/admin/settings', ['site_name' => 'PowerBank Live', 'registration_open' => true]);
 assert_ok($settPut['status'] === 200 && ($settPut['json']['data']['settings']['site_name'] ?? '') === 'PowerBank Live', 'Admin settings updated');
 
+// 12. Real Money + MXPay Deposits, Webhook Idempotency, Referral Bonus, Investments, Tasks & Withdrawals
+assert_ok($adm->req('PUT', "/admin/users/$u1Id", ['status' => 'active'])['status'] === 200, 'Admin unblocked user 1');
+$c1Fresh = new Client();
+$c1Fresh->fetchCsrf();
+assert_ok($c1Fresh->req('POST', '/auth/login', ['mobile' => '9876500001', 'password' => 'secret1', 'remember' => false])['status'] === 200, 'User 1 re-login');
+
+// Deposit via MXPay /api/web
+$depCreate = $c2->req('POST', '/me/deposits', ['amount' => 500]);
+assert_ok($depCreate['status'] === 201 && str_contains($depCreate['json']['data']['paymentLink'] ?? '', 'checkout/'), 'Deposit MXPay order created: ' . $depCreate['raw']);
+$depId = $depCreate['json']['data']['deposit']['id'];
+
+// Bad webhook token rejected
+$badHook = (new Client())->req('POST', '/webhooks/mxpay/deposit/wrongtoken', ['status' => true, 'amount' => 500, 'platform_id' => 'PF1', 'order_id' => $depId], false);
+assert_ok($badHook['status'] === 403, 'Invalid webhook token rejected');
+
+// Valid MXPay deposit callback credits user 2 depositBalance AND awards ₹50 referral bonus to user 1
+$hook = (new Client())->req('POST', '/webhooks/mxpay/deposit/test_hook_token_123456', ['status' => true, 'amount' => 500, 'platform_id' => 'PF100', 'order_id' => $depId], false);
+assert_ok($hook['status'] === 200, 'Deposit webhook accepted: ' . $hook['raw']);
+// Duplicate webhook is idempotent (no double credit!)
+$hookDup = (new Client())->req('POST', '/webhooks/mxpay/deposit/test_hook_token_123456', ['status' => true, 'amount' => 500, 'platform_id' => 'PF100', 'order_id' => $depId], false);
+assert_ok($hookDup['status'] === 200 && ($hookDup['json']['data']['duplicate'] ?? false) === true, 'Duplicate deposit webhook idempotent');
+
+$w2 = $c2->req('GET', '/me/wallet');
+assert_ok($w2['status'] === 200 && (float)$w2['json']['data']['wallet']['depositBalance'] === 500.0, 'User 2 depositBalance is 500: ' . $w2['raw']);
+$w1 = $c1Fresh->req('GET', '/me/wallet');
+assert_ok($w1['status'] === 200 && (float)$w1['json']['data']['wallet']['withdrawableBalance'] === 50.0, 'User 1 received ₹50 referral bonus: ' . $w1['raw']);
+
+// User 2 invests ₹100 in plan 1
+$plans = $c2->req('GET', '/plans');
+$plan1Id = (int)$plans['json']['data']['plans'][0]['id'];
+$invRes = $c2->req('POST', '/me/investments', ['planId' => $plan1Id]);
+assert_ok($invRes['status'] === 201 && (float)$invRes['json']['data']['wallet']['depositBalance'] === 400.0, 'Investment deducted from depositBalance');
+
+// Task completion credits withdrawable balance + blocks repeat completion
+$tasks = $c2->req('GET', '/me/tasks');
+assert_ok($tasks['status'] === 200 && count($tasks['json']['data']['tasks']) >= 5, 'User sees seeded tasks');
+$dailyTaskId = $tasks['json']['data']['tasks'][0]['id'];
+$tc1 = $c2->req('POST', "/me/tasks/$dailyTaskId/complete", []);
+assert_ok($tc1['status'] === 200 && (float)$tc1['json']['data']['wallet']['withdrawableBalance'] > 0, 'Task reward credited');
+$tc2 = $c2->req('POST', "/me/tasks/$dailyTaskId/complete", []);
+assert_ok($tc2['status'] === 422, 'Duplicate task completion blocked');
+
+// Complete Survey (₹15) + Share App (₹10) + Watch Video (₹5) + Read News (₹3), or admin creates ₹100 task so user 2 has >= ₹100 withdrawable!
+$admTask = $adm->req('POST', '/admin/tasks', ['title' => 'Bonus Task', 'category' => 'Special', 'reward' => 120, 'status' => 'active', 'assignedUserId' => 'all']);
+assert_ok($admTask['status'] === 201, 'Admin created task');
+$bonusTaskId = $admTask['json']['data']['id'];
+$tcBonus = $c2->req('POST', "/me/tasks/$bonusTaskId/complete", []);
+assert_ok($tcBonus['status'] === 200 && (float)$tcBonus['json']['data']['wallet']['withdrawableBalance'] >= 122.0, 'User 2 earned >= ₹122 withdrawable');
+
+// Bank account add + withdrawal request + admin reject refunds + admin approve calls MXPay payout + payout webhook
+$bankOk = $c2->req('POST', '/me/bank-accounts', ['bankName' => 'State Bank of India', 'accountNumber' => '123456789012', 'accountName' => 'Ravi Kumar', 'ifsc' => 'SBIN0001234']);
+assert_ok($bankOk['status'] === 201, 'Bank account saved');
+$bankOkId = (int)$bankOk['json']['data']['bankAccount']['id'];
+
+$wdr1 = $c2->req('POST', '/me/withdrawals', ['amount' => 100, 'bankAccountId' => $bankOkId]);
+assert_ok($wdr1['status'] === 201, 'Withdrawal requested: ' . $wdr1['raw']);
+$wdr1Id = $wdr1['json']['data']['withdrawal']['id'];
+$wdrRej = $adm->req('POST', "/admin/withdrawals/$wdr1Id/reject", ['note' => 'Test reject']);
+assert_ok($wdrRej['status'] === 200 && $wdrRej['json']['data']['withdrawal']['status'] === 'rejected', 'Admin rejected withdrawal');
+$w2AfterRej = $c2->req('GET', '/me/wallet');
+assert_ok((float)$w2AfterRej['json']['data']['wallet']['withdrawableBalance'] >= 122.0, 'Rejected withdrawal refunded to withdrawableBalance');
+
+// Withdrawal approved -> MXPay /api/payout -> success webhook
+$wdr2 = $c2->req('POST', '/me/withdrawals', ['amount' => 100, 'bankAccountId' => $bankOkId]);
+assert_ok($wdr2['status'] === 201, 'Second withdrawal requested');
+$wdr2Id = $wdr2['json']['data']['withdrawal']['id'];
+$wdrApp = $adm->req('POST', "/admin/withdrawals/$wdr2Id/approve", []);
+assert_ok($wdrApp['status'] === 200 && $wdrApp['json']['data']['withdrawal']['status'] === 'processing', 'Admin approved withdrawal -> MXPay payout processing');
+$pHook = (new Client())->req('POST', '/webhooks/mxpay/payout/test_hook_token_123456', ['order_id' => $wdr2Id, 'status' => true, 'amount' => 100], false);
+assert_ok($pHook['status'] === 200, 'Payout webhook accepted');
+
+// Admin money views + reports
+assert_ok($adm->req('GET', '/admin/deposits')['status'] === 200, 'Admin deposits list');
+assert_ok($adm->req('GET', '/admin/withdrawals')['status'] === 200, 'Admin withdrawals list');
+assert_ok($adm->req('GET', '/admin/investments')['status'] === 200, 'Admin investments list');
+assert_ok($adm->req('GET', '/admin/transactions')['status'] === 200, 'Admin transactions list');
+$repDep = $adm->req('GET', '/admin/reports?kind=Deposits');
+assert_ok($repDep['status'] === 200 && count($repDep['json']['data']['records']) === 1, 'Admin Deposits report live');
+$ovMoney = $adm->req('GET', '/admin/overview');
+assert_ok($ovMoney['status'] === 200 && (float)$ovMoney['json']['data']['totalDeposited'] === 500.0 && (float)$ovMoney['json']['data']['totalWithdrawn'] === 100.0, 'Admin overview live totals: ' . $ovMoney['raw']);
+
 echo "ALL $passed PHP + MYSQL ASSERTIONS PASSED\n";
 

@@ -10,4 +10,19 @@ describe("api client", () => {
     expect(errMessage(new Error("boom"), "fallback")).toBe("fallback");
     vi.unstubAllEnvs();
   });
+
+  it("hides DemoBanner and Demo badge when VITE_API_BASE_URL is configured", async () => {
+    vi.stubEnv("VITE_API_BASE_URL", "/api/public/v1"); vi.resetModules();
+    const { DemoBanner } = await import("@/components/panel/layout");
+    const { Demo } = await import("@/components/panel/ui");
+    expect(DemoBanner()).toBeNull();
+    expect(Demo()).toBeNull();
+
+    vi.stubEnv("VITE_API_BASE_URL", ""); vi.resetModules();
+    const { DemoBanner: DemoBannerOff } = await import("@/components/panel/layout");
+    const { Demo: DemoOff } = await import("@/components/panel/ui");
+    expect(DemoBannerOff()).not.toBeNull();
+    expect(DemoOff()).not.toBeNull();
+    vi.unstubAllEnvs();
+  });
 });

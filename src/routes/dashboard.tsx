@@ -34,5 +34,5 @@ function UserLayout() {
   if (me.status === "blocked") return <Gate title="Account blocked" text="An admin blocked this account. Please contact support." />;
   const unread = real && q.data ? q.data.unreadNotifications : notesFor(d.notifications, me.id).filter(n => !n.readBy.includes(me.id)).length;
   return <PanelLayout items={items} base="/dashboard" who={me.name.split(" ")[0]!} avatarName={me.name} unread={unread} profileTo="/dashboard/profile"
-    onBell={() => nav({ to: "/dashboard/notifications" })} onLogout={() => { if (real) { void api.post("/auth/logout").catch(() => {}); qc.removeQueries({ queryKey: ["me-dashboard"] }); qc.removeQueries({ queryKey: ["me-referrals"] }); qc.removeQueries({ queryKey: ["me-notifications"] }); } d.logout(); toast("Logged out"); nav({ to: "/login" }); }}><Outlet /></PanelLayout>;
+    onBell={() => nav({ to: "/dashboard/notifications" })} onLogout={() => { if (real) { void api.post("/auth/logout").catch(() => {}); qc.clear(); } d.logout(); toast("Logged out"); nav({ to: "/login" }); }}><Outlet /></PanelLayout>;
 }

@@ -3,6 +3,7 @@ declare(strict_types=1);
 /** Phase 4: Admin user management (search, filters, pagination, create, edit, status). */
 
 function admin_user_row(array $u): array {
+  $bal = paise_to_inr((int)($u['deposit_paise'] ?? 0) + (int)($u['withdrawable_paise'] ?? 0));
   return [
     'id' => $u['public_id'],
     'name' => $u['full_name'],
@@ -13,6 +14,7 @@ function admin_user_row(array $u): array {
     'displayName' => $u['display_name'] ?? $u['full_name'],
     'city' => $u['city'] ?? '',
     'inviteCode' => $u['own_code'] ?? $u['public_id'],
+    'balance' => $bal,
   ];
 }
 
@@ -47,8 +49,9 @@ function admin_users_list(): never {
   $total = (int)$cs->fetchColumn();
 
   $sql = "SELECT u.id, u.public_id, u.full_name, u.mobile, u.status, u.created_at, u.last_login_at, up.display_name, up.city,
+    COALESCE(w.deposit_paise, 0) AS deposit_paise, COALESCE(w.withdrawable_paise, 0) AS withdrawable_paise,
     (SELECT ic.code FROM invitation_codes ic WHERE ic.owner_user_id = u.id AND ic.deleted_at IS NULL ORDER BY ic.id ASC LIMIT 1) AS own_code
-    FROM users u LEFT JOIN user_profiles up ON up.user_id = u.id
+    FROM users u LEFT JOIN user_profiles up ON up.user_id = u.id LEFT JOIN wallets w ON w.user_id = u.id
     WHERE $wSql ORDER BY u.id DESC LIMIT $perPage OFFSET $offset";
   $ls = $p->prepare($sql);
   $ls->execute($params);
@@ -67,24 +70,37 @@ function admin_user_get(string $publicId): never {
   require_admin('viewer');
   $p = db();
   $s = $p->prepare("SELECT u.*, up.display_name, up.city,
+    COALESCE(w.deposit_paise, 0) AS deposit_paise, COALESCE(w.withdrawable_paise, 0) AS withdrawable_paise,
     (SELECT ic.code FROM invitation_codes ic WHERE ic.owner_user_id = u.id AND ic.deleted_at IS NULL ORDER BY ic.id ASC LIMIT 1) AS own_code
-    FROM users u LEFT JOIN user_profiles up ON up.user_id = u.id WHERE u.public_id = ? AND u.deleted_at IS NULL");
+    FROM users u LEFT JOIN user_profiles up ON up.user_id = u.id LEFT JOIN wallets w ON w.user_id = u.id WHERE u.public_id = ? AND u.deleted_at IS NULL");
   $s->execute([$publicId]);
   $u = $s->fetch();
   if (!$u) fail(404, 'not_found', 'User not found');
 
+  $uid = (int)$u['id'];
+  ensure_wallet($p, $uid);
+  $ws = $p->prepare('SELECT * FROM wallets WHERE user_id = ?');
+  $ws->execute([$uid]);
+  $wallet = $ws->fetch();
+
+  $ts = $p->prepare('SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY id DESC LIMIT 30');
+  $ts->execute([$uid]);
+  $txs = array_map('tx_out', $ts->fetchAll());
+
   $by = $p->prepare('SELECT ic.code, ru.full_name AS referrer_name FROM referrals r JOIN invitation_codes ic ON ic.id = r.invitation_code_id LEFT JOIN users ru ON ru.id = r.referrer_user_id WHERE r.referred_user_id = ?');
-  $by->execute([(int)$u['id']]);
+  $by->execute([$uid]);
   $inv = $by->fetch();
 
   $rc = $p->prepare('SELECT COUNT(*) FROM referrals WHERE referrer_user_id = ?');
-  $rc->execute([(int)$u['id']]);
+  $rc->execute([$uid]);
 
   ok([
     'user' => admin_user_row($u) + [
       'invitedWith' => $inv ? $inv['code'] : null,
       'referredBy' => $inv ? ($inv['referrer_name'] ?? 'PowerBank') : null,
       'referralCount' => (int)$rc->fetchColumn(),
+      'wallet' => wallet_out($wallet),
+      'transactions' => $txs,
     ],
   ]);
 }
@@ -113,6 +129,7 @@ function admin_user_create(): never {
     $id = (int)$p->lastInsertId();
     $p->prepare('INSERT INTO user_profiles (user_id, display_name, city) VALUES (?, ?, ?)')->execute([$id, $name, $city]);
     $p->prepare('INSERT INTO user_settings (user_id) VALUES (?)')->execute([$id]);
+    $p->prepare('INSERT INTO wallets (user_id) VALUES (?)')->execute([$id]);
     $p->prepare('INSERT INTO invitation_codes (code, owner_user_id) VALUES (?, ?)')->execute([$pid, $id]);
     $s = $p->prepare("SELECT u.*, up.display_name, up.city, ? AS own_code FROM users u LEFT JOIN user_profiles up ON up.user_id = u.id WHERE u.id = ?");
     $s->execute([$pid, $id]);

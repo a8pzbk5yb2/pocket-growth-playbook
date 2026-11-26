@@ -28,8 +28,8 @@ export function Field({ icon: Icon, placeholder, prefix, type = "text", password
   </label>;
 }
 
-export function PrimaryButton({ children, onClick, type = "button" }: { children: ReactNode; onClick?: () => void; type?: "button" | "submit" }) {
-  return <Button type={type} onClick={onClick} className="pb-primary-button">{children}{(children === "Log In" || children === "Sign Up") && <ChevronRight />}</Button>;
+export function PrimaryButton({ children, onClick, type = "button", disabled = false }: { children: ReactNode; onClick?: () => void; type?: "button" | "submit"; disabled?: boolean }) {
+  return <Button type={type} onClick={onClick} disabled={disabled} className="pb-primary-button">{children}{(children === "Log In" || children === "Sign Up") && <ChevronRight />}</Button>;
 }
 
 export function SwitchLink({ text, to, label }: { text: string; to: "/login" | "/signup"; label: string }) {

@@ -72,6 +72,7 @@ function auth_register_verify(): never {
     $id = (int)$p->lastInsertId();
     $p->prepare('INSERT INTO user_profiles (user_id, display_name) VALUES (?, ?)')->execute([$id, $in['name']]);
     $p->prepare('INSERT INTO user_settings (user_id) VALUES (?)')->execute([$id]);
+    $p->prepare('INSERT INTO wallets (user_id) VALUES (?)')->execute([$id]);
     $p->prepare('INSERT INTO referrals (referred_user_id, referrer_user_id, invitation_code_id) VALUES (?,?,?)')->execute([$id, $in['inv']['owner_user_id'], $in['inv']['id']]);
     $p->prepare('UPDATE invitation_codes SET uses = uses + 1 WHERE id = ?')->execute([$in['inv']['id']]);
     $p->prepare("INSERT INTO invitation_codes (code, owner_user_id) VALUES (?, ?)")->execute([$pid, $id]);

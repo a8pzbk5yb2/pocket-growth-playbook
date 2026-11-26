@@ -3,10 +3,14 @@ import { useMemo, useState, type ReactNode } from "react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { apiConfigured } from "@/lib/api";
 import { inr } from "@/lib/demo-data";
 
 export const money = (n: number) => (n === 0 ? "₹0.00" : inr(n));
-export function Demo() { return <span className="ml-1 rounded bg-warning/25 px-1 py-px align-middle text-[9px] font-bold uppercase tracking-wide text-foreground">Demo</span>; }
+export function Demo() {
+  if (apiConfigured()) return null;
+  return <span className="ml-1 rounded bg-warning/25 px-1 py-px align-middle text-[9px] font-bold uppercase tracking-wide text-foreground">Demo</span>;
+}
 
 const hues = ["bg-primary/15 text-primary-deep", "bg-sky/15 text-sky", "bg-violet/15 text-violet", "bg-orange/15 text-orange", "bg-rose/15 text-rose"];
 export function Avatar({ name, size = "h-9 w-9" }: { name: string; size?: string }) {
@@ -14,7 +18,7 @@ export function Avatar({ name, size = "h-9 w-9" }: { name: string; size?: string
   return <span className={`grid shrink-0 place-items-center rounded-full text-xs font-bold ${size} ${h}`}>{name.split(" ").map(p => p[0]).slice(0, 2).join("")}</span>;
 }
 
-const tone: Record<string, string> = { active: "bg-success/15 text-success", success: "bg-success/15 text-success", approved: "bg-success/15 text-success", verified: "bg-success/15 text-success", completed: "bg-sky/15 text-sky", pending: "bg-warning/20 text-orange", inactive: "bg-muted text-muted-foreground", paused: "bg-muted text-muted-foreground", blocked: "bg-destructive/15 text-destructive", rejected: "bg-destructive/15 text-destructive", failed: "bg-destructive/15 text-destructive", read: "bg-muted text-muted-foreground", unread: "bg-primary/15 text-primary-deep" };
+const tone: Record<string, string> = { active: "bg-success/15 text-success", success: "bg-success/15 text-success", approved: "bg-success/15 text-success", verified: "bg-success/15 text-success", completed: "bg-sky/15 text-sky", processing: "bg-sky/15 text-sky", pending: "bg-warning/20 text-orange", inactive: "bg-muted text-muted-foreground", paused: "bg-muted text-muted-foreground", blocked: "bg-destructive/15 text-destructive", rejected: "bg-destructive/15 text-destructive", failed: "bg-destructive/15 text-destructive", read: "bg-muted text-muted-foreground", unread: "bg-primary/15 text-primary-deep" };
 export function Status({ s }: { s: string }) { return <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${tone[s] ?? "bg-muted"}`}>{s}</span>; }
 
 export function StatCard({ icon: Icon, label, value, trend, color = "text-primary bg-primary/12", spark }: { icon: LucideIcon; label: string; value: ReactNode; trend?: string; color?: string; spark?: number[] }) {
@@ -48,14 +52,15 @@ export function usePaged<T>(rows: T[], per = 8) {
   const pages = Math.max(1, Math.ceil(rows.length / per));
   const p = Math.min(page, pages);
   const slice = useMemo(() => rows.slice((p - 1) * per, p * per), [rows, p, per]);
-  const pager = <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground"><span>{rows.length ? `Showing ${(p - 1) * per + 1}–${Math.min(p * per, rows.length)} of ${rows.length} sample records` : "No records"}</span>
+  const real = apiConfigured();
+  const pager = <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground"><span>{rows.length ? `Showing ${(p - 1) * per + 1}–${Math.min(p * per, rows.length)} of ${rows.length}${real ? "" : " sample"} records` : "No records"}</span>
     <div className="flex items-center gap-1"><Button variant="outline" size="icon" className="h-8 w-8" disabled={p <= 1} onClick={() => setPage(p - 1)} aria-label="Previous page"><ChevronLeft /></Button><span className="px-2 font-semibold text-foreground">{p} / {pages}</span><Button variant="outline" size="icon" className="h-8 w-8" disabled={p >= pages} onClick={() => setPage(p + 1)} aria-label="Next page"><ChevronRight /></Button></div></div>;
   return { slice, pager, reset: () => setPage(1) };
 }
 
 export function Table({ head, children, empty }: { head: string[]; children: ReactNode; empty?: boolean }) {
   return <div className="overflow-x-auto rounded-xl border"><table className="w-full min-w-[720px] text-left text-sm"><thead className="bg-secondary/60 text-xs font-semibold text-foreground"><tr>{head.map(h => <th key={h} className="whitespace-nowrap px-3 py-3">{h}</th>)}</tr></thead>
-    <tbody className="divide-y">{children}</tbody></table>{empty && <p className="p-8 text-center text-sm text-muted-foreground">No sample records match your filters.</p>}</div>;
+    <tbody className="divide-y">{children}</tbody></table>{empty && <p className="p-8 text-center text-sm text-muted-foreground">{apiConfigured() ? "No records match your filters." : "No sample records match your filters."}</p>}</div>;
 }
 export function Toolbar({ children }: { children: ReactNode }) { return <div className="mb-3 flex flex-wrap items-center gap-2">{children}</div>; }
 export function Detail({ rows }: { rows: [string, ReactNode][] }) { return <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">{rows.map(([k, v]) => <div key={k} className="contents"><dt className="text-muted-foreground">{k}</dt><dd className="font-medium">{v}</dd></div>)}</dl>; }

@@ -8,7 +8,7 @@ import { meta } from "@/components/pb/shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { api, apiConfigured, errMessage, type ApiAdmin } from "@/lib/api";
+import { api, apiConfigured, errMessage, type ApiAdmin, type ApiAdminOverview } from "@/lib/api";
 import { useDemo } from "@/lib/demo-store";
 
 export const Route = createFileRoute("/admin")({ head: () => meta("Admin Panel", "PowerBank admin panel."), component: AdminLayout });
@@ -65,26 +65,19 @@ function AdminLayout() {
   const d = useDemo(); const nav = useNavigate(); const qc = useQueryClient();
   const real = apiConfigured();
   const q = useQuery({ queryKey: ["admin-me"], queryFn: () => api.get<{ admin: ApiAdmin }>("/admin/me"), enabled: real, retry: false, staleTime: 30_000, refetchIntervalInBackground: false });
+  const ovQ = useQuery({ queryKey: ["admin-overview"], queryFn: () => api.get<ApiAdminOverview>("/admin/overview"), enabled: real && !!q.data?.admin, staleTime: 30_000, refetchIntervalInBackground: false });
 
   if (real && q.isLoading) return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Checking admin session…</div>;
   if (real && !q.data?.admin) return <AdminLoginGate onSuccess={() => void qc.invalidateQueries({ queryKey: ["admin-me"] })} />;
 
   const admin = q.data?.admin;
-  const pending = d.requests.filter(r => r.status === "pending").length;
-  return <PanelLayout items={items} base="/admin" who={admin ? `${admin.name.split(" ")[0]} (${admin.role})` : "Admin"} avatarName={admin ? admin.name : "Admin User"} unread={d.adminUnread + pending} profileTo="/admin/settings"
-    onBell={() => { d.markAllRead("admin"); nav({ to: "/admin/deposits" }); toast(`${pending} demo requests awaiting review`); }}
+  const pending = real ? (ovQ.data?.pendingWithdrawals ?? 0) : d.requests.filter(r => r.status === "pending").length;
+  return <PanelLayout items={items} base="/admin" who={admin ? `${admin.name.split(" ")[0]} (${admin.role})` : "Admin"} avatarName={admin ? admin.name : "Admin User"} unread={real ? pending : d.adminUnread + pending} profileTo="/admin/settings"
+    onBell={() => { if (!real) d.markAllRead("admin"); nav({ to: real ? "/admin/withdrawals" : "/admin/deposits" }); toast(`${pending} ${real ? "withdrawal" : "demo"} requests awaiting review`); }}
     onLogout={() => {
       if (real) {
         void api.post("/admin/auth/logout").catch(() => {});
-        qc.removeQueries({ queryKey: ["admin-me"] });
-        qc.removeQueries({ queryKey: ["admin-overview"] });
-        qc.removeQueries({ queryKey: ["admin-users"] });
-        qc.removeQueries({ queryKey: ["admin-plans"] });
-        qc.removeQueries({ queryKey: ["admin-referrals"] });
-        qc.removeQueries({ queryKey: ["admin-notifications"] });
-        qc.removeQueries({ queryKey: ["admin-reports"] });
-        qc.removeQueries({ queryKey: ["admin-settings"] });
-        qc.removeQueries({ queryKey: ["admin-activity-logs"] });
+        qc.clear();
       }
       toast("Signed out of admin"); nav({ to: "/login" });
     }}><Outlet /></PanelLayout>;

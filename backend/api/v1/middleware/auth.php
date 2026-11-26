@@ -4,6 +4,8 @@ declare(strict_types=1);
 function require_csrf(): void {
   $m = $_SERVER['REQUEST_METHOD'] ?? 'GET';
   if (in_array($m, ['GET', 'HEAD', 'OPTIONS'], true)) return;
+  $path = '/' . trim(preg_replace('#^.*/api/v1#', '', parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/'), '/');
+  if (preg_match('#^/webhooks/mxpay/(deposit|payout)/[A-Za-z0-9_-]+$#', $path)) return;
   $c = $_COOKIE['pb_csrf'] ?? ''; $h = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
   if ($c === '' || !hash_equals($c, $h)) fail(403, 'csrf', 'Security check failed. Refresh and try again.');
 }

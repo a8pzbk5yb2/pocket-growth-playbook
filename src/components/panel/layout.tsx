@@ -13,7 +13,7 @@ export type NavItem = { to: NonNullable<LinkProps["to"]>; label: string; icon: L
 
 export function DemoBanner() {
   if (apiConfigured()) {
-    return <div className="no-print bg-warning/90 px-3 py-1 text-center text-[11px] font-bold tracking-wide text-foreground">CONNECTED MODE · Account, plans, referrals & notifications are live on MySQL · Wallet, deposits, withdrawals & investments stay demo-only</div>;
+    return null;
   }
   return <div className="no-print bg-warning px-3 py-1 text-center text-[11px] font-bold tracking-wide text-foreground">DEMO MODE · Sample data only · No real money, deposits, withdrawals or investments · Resets on refresh</div>;
 }

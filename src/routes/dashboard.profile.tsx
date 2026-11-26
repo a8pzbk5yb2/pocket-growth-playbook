@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { User } from "lucide-react";
+import { Landmark, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -8,14 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { meta } from "@/components/pb/shell";
+import { BankAccountsManager } from "@/components/panel/bank-accounts";
 import { Avatar, Section, Status } from "@/components/panel/ui";
-import { api, apiConfigured, errMessage, type ApiDashboard, type ApiUser } from "@/lib/api";
+import { api, apiConfigured, errMessage, type ApiBankAccount, type ApiDashboard, type ApiTransaction, type ApiUser, type ApiWallet } from "@/lib/api";
 import { useMe } from "@/lib/use-me";
 export const Route = createFileRoute("/dashboard/profile")({ head: () => meta("My Profile", "Edit your PowerBank profile and preferences."), component: P });
 function P() {
   const { d, me } = useMe(); const qc = useQueryClient();
   const real = apiConfigured();
   const q = useQuery({ queryKey: ["me-dashboard"], queryFn: () => api.get<ApiDashboard>("/me/dashboard"), enabled: real, staleTime: 30_000 });
+  const walletQ = useQuery({ queryKey: ["me-wallet"], queryFn: () => api.get<{ wallet: ApiWallet; bankAccounts: ApiBankAccount[]; recentTransactions: ApiTransaction[] }>("/me/wallet"), enabled: real, staleTime: 15_000 });
   const [name, setName] = useState(me.name); const [displayName, setDisplayName] = useState(me.name); const [city, setCity] = useState("");
   const [curPw, setCurPw] = useState(""); const [pw, setPw] = useState("");
   const [notifyPush, setNotifyPush] = useState(true); const [notifySms, setNotifySms] = useState(false); const [language, setLanguage] = useState<"en" | "hi">("en");
@@ -80,5 +82,6 @@ function P() {
       <label className="flex items-center justify-between rounded-xl border p-3 text-sm">SMS notifications<Switch checked={notifySms} onCheckedChange={v => void saveSettings({ notifyPush, notifySms: v, language })} /></label>
       <div className="flex items-center justify-between rounded-xl border p-3 text-sm"><span>Language</span><select className="h-9 rounded-lg border bg-card px-3" value={language} onChange={e => void saveSettings({ notifyPush, notifySms, language: e.target.value as "en" | "hi" })}><option value="en">English</option><option value="hi">Hindi</option></select></div>
     </div></Section>}
+    {real && <Section title="Bank Accounts" icon={Landmark}><BankAccountsManager accounts={walletQ.data?.bankAccounts ?? []} /></Section>}
   </div>;
 }

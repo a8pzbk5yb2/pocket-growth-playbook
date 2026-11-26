@@ -8,6 +8,16 @@ return [
   'cookie_domain' => '',
   // provider: 'log' (test mode, codes go to storage/logs/otp-*.log) or 'blacksms'
   'sms' => ['provider' => 'log', 'blacksms' => ['api_key' => 'CHANGE_ME', 'sender_id' => 'YOUR_SENDER_ID', 'route' => 1]],
+  // MxPay payment collection & payouts (https://docs.mxpay.one/)
+  'mxpay' => [
+    'api_key' => 'CHANGE_ME',
+    'chid' => 'CHANGE_ME',
+    'base_url' => 'https://mxpay.one',
+    'webhook_token' => 'CHANGE_ME_RANDOM_HEX', // php -r "echo bin2hex(random_bytes(24));"
+    'public_base_url' => 'https://yourdomain.com/api/v1',
+    'app_url' => 'https://app.yourdomain.com',
+    'allowed_ips' => [],
+  ],
   'debug' => false,
 ];
 

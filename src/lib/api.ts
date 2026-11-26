@@ -48,3 +48,37 @@ export const api = {
 };
 
 export type ApiUser = { id: string; name: string; mobile: string; status: "active" | "inactive" | "blocked"; joined: string };
+export type ApiPlan = { id: string; name: string; icon: "zap" | "star" | "crown" | "gem"; price: number; daily: number; duration: number; validity: string; description: string; status: "active" | "inactive"; sortOrder?: number };
+export type ApiNotification = { id: string; title: string; body: string; audience: "all" | "user"; date: string; read: boolean };
+export type ApiDashboard = {
+  user: ApiUser;
+  profile: { displayName: string; city: string; avatarUrl: string };
+  settings: { notifyPush: boolean; notifySms: boolean; language: "en" | "hi" };
+  inviteCode: string;
+  referralCount: number;
+  unreadNotifications: number;
+  plans: ApiPlan[];
+  recentNotifications: ApiNotification[];
+};
+export type ApiReferrals = { inviteCode: string; invitedBy: { code: string; name: string } | null; referrals: { id: string; name: string; status: string; joined: string }[] };
+export type ApiAdmin = { id: number; username: string; name: string; role: "super_admin" | "admin" | "viewer" };
+export type ApiAdminUser = ApiUser & { lastLogin: string | null; displayName: string; city: string; inviteCode: string };
+export type ApiAdminUsersPage = { items: ApiAdminUser[]; total: number; page: number; perPage: number; counts: { total: number; active: number; inactive: number; blocked: number } };
+export type ApiAdminReferrals = {
+  codes: { id: string; code: string; owner: string; ownerId: string | null; uses: number; maxUses: number | null; status: "active" | "disabled"; expiresAt: string | null }[];
+  referrals: { userId: string; userName: string; code: string; referredBy: string; joined: string; status: string }[];
+  topReferrers: { id: string; code: string; owner: string; uses: number }[];
+  stats: { total: number; active: number; codes: number };
+};
+export type ApiAdminNotification = { id: string; title: string; body: string; audience: "all" | "user"; targetUser: { id: string; name: string } | null; date: string; readCount: number };
+export type ApiAdminOverview = {
+  users: { total: number; active: number; inactive: number; blocked: number };
+  referrals: number;
+  activePlans: number;
+  recentUsers: ApiUser[];
+  recentLogs: { id: string; admin: string; action: string; targetType: string | null; targetId: string | null; date: string }[];
+};
+export type ApiAdminReport = { kind: "Users" | "Referrals"; records: { date: string; label: string; amount: number }[]; byMonth: { m: string; v: number }[] };
+export type ApiActivityLog = { id: string; admin: string; action: string; targetType: string | null; targetId: string | null; details: Record<string, unknown> | null; ip: string; date: string };
+
+export const errMessage = (e: unknown, fallback = "Something went wrong. Please try again.") => (e instanceof ApiError ? e.message : fallback);

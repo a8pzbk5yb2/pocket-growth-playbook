@@ -30,3 +30,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local backend secrets & logs
+backend/private/config.php
+backend/api/v1/storage/logs/*.log

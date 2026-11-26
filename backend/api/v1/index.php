@@ -21,7 +21,7 @@ require_csrf();
 
 /** Route table: "METHOD /path/{id}" => handler. Filled in by each phase. */
 $routes = [
-  'GET /health' => fn() => ok(['status' => 'ok', 'time' => gmdate('c')]),
+  'GET /health' => function () { db()->query('SELECT 1')->fetchColumn(); ok(['status' => 'ok', 'db' => 'connected', 'time' => gmdate('c')]); },
   'GET /auth/csrf' => function () { $t = bin2hex(random_bytes(16)); set_cookie('pb_csrf', $t, 0, false); ok(['csrfToken' => $t]); },
 ];
 foreach (glob(__DIR__ . '/controllers/*.routes.php') ?: [] as $f) $routes += require $f;
@@ -29,6 +29,6 @@ foreach (glob(__DIR__ . '/controllers/*.routes.php') ?: [] as $f) $routes += req
 foreach ($routes as $sig => $handler) {
   [$m, $pattern] = explode(' ', $sig, 2);
   $re = '#^' . preg_replace('#\{(\w+)\}#', '(?P<$1>[A-Za-z0-9_-]+)', $pattern) . '$#';
-  if ($m === $method && preg_match($re, $path, $mm)) { $handler(array_filter($mm, 'is_string', ARRAY_FILTER_USE_KEY)); }
+  if ($m === $method && preg_match($re, $path, $mm)) { $handler(array_filter($mm, 'is_string', ARRAY_FILTER_USE_KEY)); return; }
 }
 fail(404, 'not_found', 'Endpoint not found');

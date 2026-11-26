@@ -20,7 +20,12 @@ async function forward({ request, params }: { request: Request; params: { _splat
   }
   const out = new Headers({ "content-type": res.headers.get("content-type") ?? "application/json", "cache-control": "no-store" });
   const retry = res.headers.get("retry-after"); if (retry) out.set("retry-after", retry);
-  for (const c of res.headers.getSetCookie()) out.append("set-cookie", c);
+  const isPlainHttpNonLocal = url.protocol === "http:" && url.hostname !== "localhost" && url.hostname !== "127.0.0.1";
+  for (const c of res.headers.getSetCookie()) {
+    let cookie = c.replace(/;\s*domain=[^;]*/gi, "");
+    if (isPlainHttpNonLocal) cookie = cookie.replace(/;\s*secure\b/gi, "");
+    out.append("set-cookie", cookie);
+  }
   return new Response(await res.arrayBuffer(), { status: res.status, headers: out });
 }
 

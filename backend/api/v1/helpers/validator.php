@@ -9,11 +9,21 @@ final class V {
     if ($len < $min || $len > $max || ($re && !preg_match($re, $v))) $this->errors[$k] = $msg;
     return $v;
   }
+  public function optStr(string $k, int $max, ?string $re = null, string $msg = 'Invalid value'): ?string {
+    $raw = $this->in[$k] ?? null;
+    if ($raw === null || (is_string($raw) && trim($raw) === '')) return null;
+    return $this->str($k, 1, $max, $re, $msg);
+  }
   public function bool(string $k): bool { return ($this->in[$k] ?? false) === true; }
   public function int(string $k, int $min, int $max): int {
     $v = $this->in[$k] ?? null;
     if (!is_int($v) || $v < $min || $v > $max) { $this->errors[$k] = "Must be a number from $min to $max"; return $min; }
     return $v;
+  }
+  public function optInt(string $k, int $min, int $max): ?int {
+    $v = $this->in[$k] ?? null;
+    if ($v === null || $v === '') return null;
+    return $this->int($k, $min, $max);
   }
   public function oneOf(string $k, array $opts): string { $v = $this->in[$k] ?? ''; if (!in_array($v, $opts, true)) $this->errors[$k] = 'Invalid option'; return (string)$v; }
   public function error(string $k, string $msg): void { $this->errors[$k] = $msg; }

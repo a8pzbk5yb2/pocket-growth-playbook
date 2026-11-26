@@ -21,6 +21,8 @@ function body(): array {
   return $b;
 }
 function client_ip(): ?string { $ip = $_SERVER['REMOTE_ADDR'] ?? ''; return $ip ? (inet_pton($ip) ?: null) : null; }
+function iso_utc(?string $dt): ?string { return $dt ? gmdate('c', strtotime($dt . ' UTC')) : null; }
+function like_esc(string $q): string { return '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $q) . '%'; }
 function log_error(Throwable $e): void {
   @file_put_contents(dirname(__DIR__) . '/storage/logs/error-' . gmdate('Y-m-d') . '.log', gmdate('c') . ' ' . get_class($e) . ': ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine() . "\n", FILE_APPEND | LOCK_EX);
 }

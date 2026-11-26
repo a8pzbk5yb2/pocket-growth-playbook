@@ -10,8 +10,8 @@
 
 # Real backend (PHP + MySQL)
 - [x] Phase 1: API foundation + 14-table schema + app API client
-- [ ] Phase 2: sign-up, SMS codes, log-in, reset
-- [ ] Phase 3: user panel data
-- [ ] Phase 4: admin login + users
-- [ ] Phase 5: plans, referrals, notifications
-- [ ] Phase 6: reports, logs, security tests
+- [x] Phase 2: sign-up, SMS codes, log-in, reset
+- [x] Phase 3: user panel data
+- [x] Phase 4: admin login + users
+- [x] Phase 5: plans, referrals, notifications
+- [x] Phase 6: reports, logs, security tests

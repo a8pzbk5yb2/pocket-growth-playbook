@@ -4,7 +4,8 @@ function db(): PDO {
   static $pdo = null;
   if ($pdo) return $pdo;
   $d = app_config()['db'];
-  $pdo = new PDO("mysql:host={$d['host']};dbname={$d['name']};charset=utf8mb4", $d['user'], $d['pass'], [
+  $port = isset($d['port']) ? ';port=' . (int)$d['port'] : '';
+  $pdo = new PDO("mysql:host={$d['host']}{$port};dbname={$d['name']};charset=utf8mb4", $d['user'], $d['pass'], [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, PDO::ATTR_EMULATE_PREPARES => false,
   ]);
   $pdo->exec("SET time_zone = '+00:00'");

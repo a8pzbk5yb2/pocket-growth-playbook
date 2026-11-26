@@ -10,3 +10,4 @@ return [
   'sms' => ['provider' => 'log', 'blacksms' => ['api_key' => 'CHANGE_ME', 'sender_id' => 'YOUR_SENDER_ID', 'route' => 1]],
   'debug' => false,
 ];
+

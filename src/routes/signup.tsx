@@ -25,14 +25,14 @@ function Signup() {
   const payload = () => ({ name: v.name.trim(), mobile: v.mobile, password: v.password, confirm: v.confirm, invite: v.invite.trim(), agree: v.agree });
   const sendCode = async () => { setBusy(true); try { await api.post("/auth/register/start", payload()); setOtpSent(true); toast.success(`Code sent by SMS to +91 ${v.mobile}`); } catch (e) { showApiError(e); } finally { setBusy(false); } };
   const verify = async () => { if (!/^\d{6}$/.test(code)) { setErr({ ...err, code: "Enter the 6-digit code" } as typeof err); return; } setBusy(true);
-    try { const r = await api.post<{ user: ApiUser }>("/auth/register/verify", { ...payload(), code }); d.setApiUser(r.user); toast.success(`Welcome, ${r.user.name}! Your account is ready.`); nav({ to: "/dashboard" }); } catch (e) { showApiError(e); } finally { setBusy(false); } };
+    try { const r = await api.post<{ user: ApiUser }>("/auth/register/verify", { ...payload(), code }); d.setApiUser(r.user); toast.success(`Welcome, ${r.user.name}! Your account is ready.`); nav({ to: "/" }); } catch (e) { showApiError(e); } finally { setBusy(false); } };
   const set = (k: keyof SignupInput) => (e: React.ChangeEvent<HTMLInputElement>) => setV({ ...v, [k]: k === "mobile" ? e.target.value.replace(/\D/g, "").slice(0, 10) : e.target.value });
   return <AuthLayout title="Create Your PowerBank Account" subtitle="Join today and start your investment journey.">
     <form noValidate className="space-y-3" onSubmit={e => { e.preventDefault(); if (real && otpSent) { void verify(); return; }
       const er = signupErrors(v, real ? [] : d.users.map(u => u.mobile), !real); setErr(er);
       if (Object.keys(er).length) { toast.error("Please fix the highlighted fields"); return; }
       if (real) { void sendCode(); return; }
-      setBusy(true); setTimeout(() => { const u = d.signup(v); setBusy(false); toast.success(`Welcome, ${u.name}! Demo account created — no real account exists.`); nav({ to: "/dashboard" }); }, 700); }}>
+      setBusy(true); setTimeout(() => { const u = d.signup(v); setBusy(false); toast.success(`Welcome, ${u.name}! Demo account created — no real account exists.`); nav({ to: "/" }); }, 700); }}>
       <AuthInput icon={<User className="pb-field-icon" />} error={err.name}><input value={v.name} onChange={set("name")} maxLength={60} placeholder="Enter your full name" aria-label="Full Name" /></AuthInput>
       <AuthInput icon={<Phone className="pb-field-icon" />} error={err.mobile}><span className="pb-country">+91 🇮🇳<ChevronDown /></span><input value={v.mobile} onChange={e => { set("mobile")(e); setOtpSent(false); }} inputMode="numeric" placeholder="Enter your mobile number" aria-label="Mobile Number" /></AuthInput>
       <AuthInput icon={<Lock className="pb-field-icon" />} error={err.password} toggle={<Eyes show={s1} set={setS1} />}><input type={s1 ? "text" : "password"} value={v.password} onChange={set("password")} placeholder="Create a strong password" aria-label="Create Password" /></AuthInput>

@@ -20,9 +20,9 @@ function Login() {
     <form noValidate className="space-y-3" onSubmit={e => { e.preventDefault();
       if (!/^\d{10}$/.test(mobile) || !pw) { setErr("Enter your 10-digit mobile number and password"); return; }
       if (apiConfigured()) { setBusy(true); setErr("");
-        api.post<{ user: ApiUser }>("/auth/login", { mobile, password: pw, remember }).then(r => { d.setApiUser(r.user); toast.success(`Welcome back, ${r.user.name}!`); nav({ to: "/dashboard" }); },
+        api.post<{ user: ApiUser }>("/auth/login", { mobile, password: pw, remember }).then(r => { d.setApiUser(r.user); toast.success(`Welcome back, ${r.user.name}!`); nav({ to: "/" }); },
           (e: unknown) => { const m = errMessage(e); setErr(m); toast.error(m); }).finally(() => setBusy(false)); return; }
-      setBusy(true); setTimeout(() => { const r = d.login(mobile, pw); setBusy(false); if (r) { setErr(r); toast.error(r); return; } toast.success(remember ? "Signed in (demo) — remembered until refresh" : "Signed in (demo)"); nav({ to: "/dashboard" }); }, 500); }}>
+      setBusy(true); setTimeout(() => { const r = d.login(mobile, pw); setBusy(false); if (r) { setErr(r); toast.error(r); return; } toast.success(remember ? "Signed in (demo) — remembered until refresh" : "Signed in (demo)"); nav({ to: "/" }); }, 500); }}>
       <AuthInput icon={<Phone className="pb-field-icon" />}><span className="pb-country">+91<ChevronDown /></span><input value={mobile} onChange={e => setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))} inputMode="numeric" placeholder="Mobile Number" aria-label="Mobile Number" /></AuthInput>
       <AuthInput icon={<Lock className="pb-field-icon" />} toggle={<Eyes show={show} set={setShow} />}><input type={show ? "text" : "password"} value={pw} onChange={e => setPw(e.target.value)} placeholder="Password" aria-label="Password" /></AuthInput>
       {err && <p className="pl-2 text-[11px] font-medium text-destructive">{err}</p>}

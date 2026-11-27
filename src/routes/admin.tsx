@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowDownToLine, ArrowUpFromLine, Bell, ClipboardCheck, FileBarChart, Gem, LayoutDashboard, Loader2, Lock, Settings, Share2, ShieldCheck, TrendingUp, ArrowLeftRight, User, Users } from "lucide-react";
+import { ArrowLeftRight, Bell, ChartColumnBig, ChartNoAxesCombined, House, ListChecks, Loader2, Lock, Settings, ShieldCheck, SquareCheckBig, Upload, User, UserRound, Users, WalletCards } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { DemoBanner, PanelLayout, type NavItem } from "@/components/panel/layout";
@@ -13,12 +13,12 @@ import { useDemo } from "@/lib/demo-store";
 
 export const Route = createFileRoute("/admin")({ head: () => meta("Admin Panel", "PowerBank admin panel."), component: AdminLayout });
 const items: NavItem[] = [
-  { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true }, { to: "/admin/users", label: "Users", icon: Users },
-  { to: "/admin/investments", label: "Investments", icon: TrendingUp }, { to: "/admin/plans", label: "Plans", icon: Gem },
-  { to: "/admin/transactions", label: "Transactions", icon: ArrowLeftRight }, { to: "/admin/deposits", label: "Deposits", icon: ArrowDownToLine },
-  { to: "/admin/withdrawals", label: "Withdrawals", icon: ArrowUpFromLine }, { to: "/admin/tasks", label: "Tasks", icon: ClipboardCheck },
-  { to: "/admin/referrals", label: "Referrals", icon: Share2 }, { to: "/admin/reports", label: "Reports", icon: FileBarChart },
-  { to: "/admin/notifications", label: "Notifications", icon: Bell }, { to: "/admin/settings", label: "Settings", icon: Settings },
+  { to: "/admin", label: "Overview", icon: House, exact: true, fill: true }, { to: "/admin/users", label: "Users", icon: UserRound, fill: true },
+  { to: "/admin/investments", label: "Investments", icon: ChartNoAxesCombined }, { to: "/admin/plans", label: "Plans", icon: ListChecks },
+  { to: "/admin/transactions", label: "Transactions", icon: ArrowLeftRight }, { to: "/admin/deposits", label: "Deposits", icon: WalletCards },
+  { to: "/admin/withdrawals", label: "Withdrawals", icon: Upload }, { to: "/admin/tasks", label: "Tasks", icon: SquareCheckBig },
+  { to: "/admin/referrals", label: "Referrals", icon: Users, fill: true }, { to: "/admin/reports", label: "Reports", icon: ChartColumnBig },
+  { to: "/admin/notifications", label: "Notifications", icon: Bell, fill: true }, { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 function AdminLoginGate({ onSuccess }: { onSuccess: () => void }) {

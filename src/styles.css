@@ -67,6 +67,7 @@
   --color-gold: var(--gold);
   --color-sky: var(--sky);
   --color-violet: var(--violet);
+  --color-primary-glow: var(--primary-glow);
   --color-rose: var(--rose);
   --color-orange: var(--orange);
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -105,6 +106,7 @@
   --ring: oklch(0.62 0.17 155);
   --gold: oklch(0.82 0.15 85);
   --sky: oklch(0.65 0.15 250);
+  --primary-glow: oklch(0.78 0.2 140);
   --violet: oklch(0.6 0.18 300);
   --rose: oklch(0.65 0.2 15);
   --orange: oklch(0.72 0.17 55);

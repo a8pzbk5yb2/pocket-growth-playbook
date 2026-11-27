@@ -21,17 +21,19 @@ export function Avatar({ name, size = "h-9 w-9" }: { name: string; size?: string
 const tone: Record<string, string> = { active: "bg-success/15 text-success", success: "bg-success/15 text-success", approved: "bg-success/15 text-success", verified: "bg-success/15 text-success", completed: "bg-sky/15 text-sky", processing: "bg-sky/15 text-sky", pending: "bg-warning/20 text-orange", inactive: "bg-muted text-muted-foreground", paused: "bg-muted text-muted-foreground", blocked: "bg-destructive/15 text-destructive", rejected: "bg-destructive/15 text-destructive", failed: "bg-destructive/15 text-destructive", read: "bg-muted text-muted-foreground", unread: "bg-primary/15 text-primary-deep" };
 export function Status({ s }: { s: string }) { return <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${tone[s] ?? "bg-muted"}`}>{s}</span>; }
 
+const sparkTone: Record<string, string> = { "text-primary": "var(--primary)", "text-violet": "var(--violet)", "text-sky": "var(--sky)", "text-orange": "var(--orange)", "text-rose": "var(--rose)", "text-destructive": "var(--destructive)", "text-success": "var(--success)" };
 export function StatCard({ icon: Icon, label, value, trend, color = "text-primary bg-primary/12", spark }: { icon: LucideIcon; label: string; value: ReactNode; trend?: string; color?: string; spark?: number[] }) {
+  const stroke = Object.entries(sparkTone).find(([k]) => color.split(" ").includes(k))?.[1] ?? "var(--primary)";
   return <div className="panel-card relative overflow-hidden p-4 transition-transform hover:-translate-y-0.5">
-    <div className="flex items-start gap-3"><span className={`grid h-12 w-12 place-items-center rounded-2xl ${color}`}><Icon className="h-6 w-6" /></span>
-      <div className="min-w-0 flex-1"><p className="text-sm text-muted-foreground">{label}</p><p className="text-xl font-extrabold leading-tight 2xl:text-2xl">{value}</p></div>
-      {trend && <span className="flex items-center gap-0.5 rounded-full bg-success/12 px-2 py-0.5 text-xs font-semibold text-success"><TrendingUp className="h-3 w-3" />{trend}</span>}</div>
-    {spark && <div className="-mx-4 -mb-4 mt-1 h-10"><ResponsiveContainer><AreaChart data={spark.map(v => ({ v }))}><Area dataKey="v" type="monotone" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.12} strokeWidth={2} /></AreaChart></ResponsiveContainer></div>}
+    <div className="flex items-start gap-3"><span className={`grid h-14 w-14 shrink-0 place-items-center rounded-full shadow-[inset_0_-4px_10px_-4px_currentColor] ${color}`}><Icon className="h-7 w-7" strokeWidth={2.4} fill="currentColor" fillOpacity={0.22} /></span>
+      <div className="min-w-0 flex-1"><p className="text-sm font-medium text-muted-foreground">{label}</p><p className="truncate text-xl font-extrabold leading-tight 2xl:text-2xl">{value}</p></div>
+      {trend && <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-success/12 px-2 py-0.5 text-xs font-semibold text-success"><TrendingUp className="h-3 w-3" />{trend}</span>}</div>
+    {spark && <div className="-mx-4 -mb-4 mt-1 h-10"><ResponsiveContainer><AreaChart data={spark.map(v => ({ v }))}><Area dataKey="v" type="monotone" stroke={stroke} fill={stroke} fillOpacity={0.12} strokeWidth={2} /></AreaChart></ResponsiveContainer></div>}
   </div>;
 }
 
 export function Section({ title, icon: Icon, action, children, className = "" }: { title: string; icon?: LucideIcon; action?: ReactNode; children: ReactNode; className?: string }) {
-  return <section className={`panel-card p-4 md:p-5 ${className}`}><div className="mb-3 flex flex-wrap items-center justify-between gap-2"><h2 className="flex items-center gap-2 text-lg font-bold">{Icon && <Icon className="h-5 w-5 text-primary" />}{title}</h2>{action}</div>{children}</section>;
+  return <section className={`panel-card p-4 md:p-5 ${className}`}><div className="mb-3 flex flex-wrap items-center justify-between gap-2"><h2 className="flex items-center gap-2 text-lg font-bold">{Icon && <Icon className="h-5 w-5 text-primary" strokeWidth={2.5} fill="currentColor" fillOpacity={0.2} />}{title}</h2>{action}</div>{children}</section>;
 }
 
 export function SearchBox({ value, onChange, placeholder = "Search…" }: { value: string; onChange: (v: string) => void; placeholder?: string }) {

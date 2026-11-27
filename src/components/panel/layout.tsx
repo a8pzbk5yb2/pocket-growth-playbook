@@ -9,7 +9,7 @@ import { apiConfigured } from "@/lib/api";
 import promo from "@/assets/powerbank-home.webp.asset.json";
 import { Avatar } from "./ui";
 
-export type NavItem = { to: NonNullable<LinkProps["to"]>; label: string; icon: LucideIcon; exact?: boolean };
+export type NavItem = { to: NonNullable<LinkProps["to"]>; label: string; icon: LucideIcon; exact?: boolean; fill?: boolean };
 
 export function DemoBanner() {
   if (apiConfigured()) {
@@ -27,8 +27,8 @@ export function PanelLayout({ items, base, who, avatarName, unread, onBell, onLo
   const crumbRoot = base === "/admin" ? "Dashboard" : "My Account";
   const sidebar = <aside className="flex h-full w-64 flex-col bg-forest-gradient p-4 text-primary-foreground">
     <div className="mb-6 flex items-center justify-between px-2 pt-2"><Link to={base} className="flex items-center gap-2 text-2xl font-extrabold"><Zap className="h-8 w-8 fill-lime text-lime" />Power<span className="text-lime">Bank</span></Link><Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 lg:hidden" onClick={() => setOpen(false)} aria-label="Close menu"><X /></Button></div>
-    <nav className="flex-1 space-y-1 overflow-y-auto">{items.map(i => { const active = i === current; return <Link key={i.to} to={i.to} onClick={() => setOpen(false)} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${active ? "bg-primary shadow-soft" : "hover:translate-x-0.5 hover:bg-primary-foreground/10"}`}><i.icon className="h-5 w-5" />{i.label}</Link>; })}
-      <button onClick={onLogout} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-primary-foreground/10"><LogOut className="h-5 w-5" />Logout</button>
+    <nav className="flex-1 space-y-1 overflow-y-auto">{items.map(i => { const active = i === current; return <Link key={i.to} to={i.to} onClick={() => setOpen(false)} className={`flex items-center gap-3.5 rounded-2xl px-3.5 py-2.5 text-[15px] font-semibold transition-all ${active ? "bg-linear-to-r from-primary to-primary-glow shadow-[0_6px_18px_-4px_var(--primary)] ring-1 ring-primary-foreground/25" : "hover:translate-x-0.5 hover:bg-primary-foreground/10"}`}><i.icon className="h-[22px] w-[22px] shrink-0" strokeWidth={2.4} fill={i.fill ? "currentColor" : "none"} fillOpacity={i.fill ? 0.9 : 0} />{i.label}</Link>; })}
+      <button onClick={onLogout} className="mt-3 flex w-full items-center gap-3.5 rounded-2xl px-3.5 py-3 text-[15px] font-semibold hover:bg-primary-foreground/10"><LogOut className="h-[22px] w-[22px]" strokeWidth={2.4} />Logout</button>
     </nav>
     <div className="mt-4 rounded-2xl bg-primary-foreground/10 p-3 text-center"><img src={promo.url} alt="" className="mx-auto h-24 object-contain" /><p className="mt-1 text-sm font-bold leading-tight">Grow Together<br />with PowerBank</p><span className="mt-2 inline-block rounded-full bg-lime px-3 py-1 text-[10px] font-bold text-forest">Fast • Secure • Reliable</span></div>
   </aside>;
@@ -40,11 +40,11 @@ export function PanelLayout({ items, base, who, avatarName, unread, onBell, onLo
       <div className="min-w-0 flex-1">
         <header className="no-print sticky top-0 z-30 flex flex-wrap items-center gap-3 border-b bg-background/95 px-4 py-3 backdrop-blur md:px-6">
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(true)} aria-label="Open menu"><Menu /></Button>
-          <div className="min-w-0 flex-1"><h1 className="truncate text-xl font-extrabold md:text-2xl">{current.label === "Overview" ? "Admin Overview" : current.label}</h1><p className="flex items-center gap-1 text-xs text-muted-foreground"><Home className="h-3 w-3 text-primary" />{crumbRoot} / <span className="text-foreground">{current.label}</span></p></div>
+          <span className="hidden h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary sm:grid"><current.icon className="h-7 w-7" strokeWidth={2.4} fill={current.fill ? "currentColor" : "none"} fillOpacity={current.fill ? 0.9 : 0} /></span><div className="min-w-0 flex-1"><h1 className="truncate text-xl font-extrabold md:text-2xl">{current.label === "Overview" ? "Admin Overview" : base === "/admin" && ["Users", "Plans", "Investments", "Tasks", "Referrals"].includes(current.label) ? `${current.label} Management` : current.label}</h1><p className="flex items-center gap-1 text-xs text-muted-foreground"><Home className="h-3 w-3 text-primary" />{crumbRoot} / <span className="text-foreground">{current.label}</span></p></div>
           <form className="relative hidden w-72 md:block" onSubmit={e => { e.preventDefault(); if (!q.trim()) return; const hit = items.find(i => i.label.toLowerCase().includes(q.toLowerCase())); if (hit) nav({ to: hit.to }); else toast(`No section matches “${q}”`); }}>
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input value={q} onChange={e => setQ(e.target.value)} placeholder="Search sections…" className="h-10 rounded-xl pl-9" aria-label="Search" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input value={q} onChange={e => setQ(e.target.value)} placeholder={`Search ${current.label === "Overview" ? "users, transactions" : current.label.toLowerCase()}…`} className="h-11 rounded-2xl bg-card pl-10 shadow-xs" aria-label="Search" />
           </form>
-          <Button variant="ghost" size="icon" className="relative" onClick={onBell} aria-label="Notifications"><Bell />{unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">{unread}</span>}</Button>
+          <Button variant="ghost" size="icon" className="relative" onClick={onBell} aria-label="Notifications"><Bell className="text-primary" strokeWidth={2.4} />{unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">{unread}</span>}</Button>
           <DropdownMenu><DropdownMenuTrigger asChild><button className="flex items-center gap-2 rounded-xl px-1 py-1 hover:bg-muted"><Avatar name={avatarName} /><span className="hidden text-sm font-semibold sm:inline">{who}</span><ChevronDown className="h-4 w-4" /></button></DropdownMenuTrigger>
             <DropdownMenuContent align="end"><DropdownMenuLabel>{avatarName}</DropdownMenuLabel><DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => nav({ to: profileTo })}>Profile & settings</DropdownMenuItem>

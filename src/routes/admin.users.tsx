@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Ban, CheckCircle2, ChevronLeft, ChevronRight, MoreHorizontal, Plus, UserCheck, UserX, Users } from "lucide-react";
+import { CircleCheck, CirclePause, Ban, CheckCircle2, ChevronLeft, ChevronRight, MoreHorizontal, Plus, UserCheck, UserX, Users } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -48,8 +48,8 @@ function UsersPage() {
 
   return <>
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <StatCard icon={Users} label="Total Users" value={counts.total} /><StatCard icon={UserCheck} label="Active Users" value={counts.active} />
-      <StatCard icon={UserX} color="bg-warning/15 text-orange" label="Inactive Users" value={counts.inactive} /><StatCard icon={Ban} color="bg-destructive/12 text-destructive" label="Blocked Users" value={counts.blocked} />
+      <StatCard icon={Users} label="Total Users" value={counts.total} /><StatCard icon={CircleCheck} label="Active Users" value={counts.active} />
+      <StatCard icon={CirclePause} color="bg-warning/15 text-orange" label="Inactive Users" value={counts.inactive} /><StatCard icon={Ban} color="bg-destructive/12 text-destructive" label="Blocked Users" value={counts.blocked} />
     </div>
     <Section title="All Users" icon={Users} action={<div className="flex gap-2"><ExportBtn onClick={() => downloadCsv(real ? "powerbank-users.csv" : "powerbank-users-demo.csv", rows.map(u => ({ id: u.id, name: u.name, mobile: u.mobile, joined: fmtDate(u.joined), status: u.status, balance: u.balance ?? 0, ...(real ? { city: u.city ?? "", inviteCode: u.inviteCode ?? "" } : { email: u.email ?? "", kyc: u.kyc ?? "pending" }) })))} /><Button className="h-10 rounded-xl" onClick={() => setMode({ kind: "add" })}><Plus />Add User</Button></div>}>
       <Toolbar><SearchBox value={q} onChange={setQ} placeholder="Search name, mobile or ID" /><FilterSelect label="Status" value={st} onChange={v => { setSt(v); setPage(1); }} options={["active","inactive","blocked"]} />{!real && <FilterSelect label="KYC" value={kyc} onChange={setKyc} options={["verified","pending","rejected"]} />}<DateRange from={from} to={to} onFrom={v => { setFrom(v); setPage(1); }} onTo={v => { setTo(v); setPage(1); }} /></Toolbar>

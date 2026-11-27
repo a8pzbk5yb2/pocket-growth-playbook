@@ -35,7 +35,7 @@ function Team() {
           <Button asChild className="mt-3 rounded-full"><Link to="/login">Log In</Link></Button>
         </div>
       ) : (
-        <div className="mt-4 flex items-center gap-3 rounded-[20px] border border-lime bg-gradient-primary p-3 text-primary-foreground"><img src={giftImg.url} alt="" className="h-20 w-20 object-contain" /><div><h2 className="text-base font-bold leading-tight">Invite Your Friends<br />Get <span className="text-lime">₹50 Bonus</span></h2><Button variant="ghost" onClick={() => { void navigator.clipboard?.writeText(inviteCode); toast.success("Invite code copied"); }} className="mt-1 h-7 gap-2 px-0 text-xs text-primary-foreground hover:bg-transparent hover:text-lime">Code: {inviteCode}<Copy /></Button></div></div>
+        <div className="mt-4 flex items-center gap-3 rounded-[20px] border border-lime bg-gradient-primary p-3 text-primary-foreground"><img src={giftImg.url} alt="" className="h-20 w-20 object-contain" /><div><h2 className="text-base font-bold leading-tight">Invite Your Friends<br />Get <span className="text-lime">₹50 Bonus</span></h2><Button variant="ghost" onClick={() => { void navigator.clipboard?.writeText(`${window.location.origin}/signup?ref=${encodeURIComponent(inviteCode)}`); toast.success("Referral link copied"); }} className="mt-1 h-7 gap-2 px-0 text-xs text-primary-foreground hover:bg-transparent hover:text-lime">Copy Referral Link<Copy /></Button></div></div>
       )}
       {refs.length > 0 && (
         <section className="pt-5"><h2 className="text-base font-bold">Referred Members</h2><ul className="mt-3 space-y-2">{refs.map(r => (

@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { DemoProvider } from "@/lib/demo-store";
+import { AuthGate } from "@/components/pb/auth-gate";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -128,7 +129,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <DemoProvider><Outlet /></DemoProvider>
+      <DemoProvider><AuthGate /><Outlet /></DemoProvider>
       <Toaster position="top-center" />
     </QueryClientProvider>
   );

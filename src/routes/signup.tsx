@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ChevronDown, Eye, EyeOff, Gift, KeyRound, Loader2, Lock, Phone, User } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { AuthLayout, PrimaryButton, SwitchLink } from "@/components/pb/auth";
 import { meta } from "@/components/pb/shell";
@@ -22,6 +22,7 @@ function Signup() {
   const [otpSent, setOtpSent] = useState(false); const [code, setCode] = useState("");
   const real = apiConfigured();
   const showApiError = (e: unknown) => { if (e instanceof ApiError) { if (Object.keys(e.fields).length) setErr(e.fields as typeof err); toast.error(e.message); } else toast.error("Something went wrong. Please try again."); };
+  useEffect(() => { const r = new URLSearchParams(window.location.search).get("ref"); if (r) setV(x => ({ ...x, invite: r.slice(0, 20) })); }, []);
   const payload = () => ({ name: v.name.trim(), mobile: v.mobile, password: v.password, confirm: v.confirm, invite: v.invite.trim(), agree: v.agree });
   const sendCode = async () => { setBusy(true); try { await api.post("/auth/register/start", payload()); setOtpSent(true); toast.success(`Code sent by SMS to +91 ${v.mobile}`); } catch (e) { showApiError(e); } finally { setBusy(false); } };
   const verify = async () => { if (!/^\d{6}$/.test(code)) { setErr({ ...err, code: "Enter the 6-digit code" } as typeof err); return; } setBusy(true);

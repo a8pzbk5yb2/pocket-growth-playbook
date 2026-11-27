@@ -13,7 +13,7 @@ export function MaintenanceGate({ children }: { children: ReactNode }) {
   const enabled = apiConfigured() && !exempt;
   const status = useQuery({
     queryKey: ["platform-status"], queryFn: () => api.get<{ maintenance: boolean }>("/status"),
-    enabled, retry: false, staleTime: 0, refetchInterval: 15_000,
+    enabled, retry: false, staleTime: 60_000, refetchOnWindowFocus: false,
   });
   if (!enabled) return children;
   if (status.isPending) return <MobileShell nav={false}><div role="status" className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div></MobileShell>;

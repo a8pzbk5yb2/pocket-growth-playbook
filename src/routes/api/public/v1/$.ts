@@ -3,13 +3,14 @@ import { createFileRoute } from "@tanstack/react-router";
 // Same-site bridge to the Hostinger PHP API, so its sign-in cookies belong to this app's domain.
 // The PHP API does all checks itself (CSRF, sessions, roles); this only forwards the request.
 const UPSTREAM = "https://meta.mxpay.vip/api/v1";
-const PASS_REQ = ["accept", "content-type", "cookie", "x-csrf-token", "user-agent"];
+const PASS_REQ = ["accept", "accept-language", "content-type", "cookie", "x-csrf-token", "user-agent"];
 
 async function forward({ request, params }: { request: Request; params: { _splat?: string } }) {
   const url = new URL(request.url);
   const target = `${(process.env["API_UPSTREAM_URL"] ?? UPSTREAM).replace(/\/$/, "")}/${params._splat ?? ""}${url.search}`;
   const headers = new Headers();
   for (const h of PASS_REQ) { const v = request.headers.get(h); if (v) headers.set(h, v); }
+  if (!headers.has("user-agent")) headers.set("user-agent", "PowerBank-Proxy/1.0");
   const ip = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for");
   if (ip) headers.set("x-forwarded-for", ip);
   let res: Response;

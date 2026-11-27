@@ -27,7 +27,7 @@ function WalletPage() {
 
   const q = useQuery({
     queryKey: ["me-wallet"],
-    queryFn: () => api.get<{ wallet: ApiWallet; bankAccounts: ApiBankAccount[]; recentTransactions: ApiTransaction[] }>("/me/wallet"),
+    queryFn: () => api.get<{ wallet: ApiWallet; bankAccounts: ApiBankAccount[] }>("/me/wallet"),
     enabled: real,
     retry: false,
     staleTime: 15_000,

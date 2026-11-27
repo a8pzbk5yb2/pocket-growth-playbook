@@ -1,21 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, CreditCard, Globe, History, IndianRupee, Info as Info2, LayoutGrid, Lock, Mail, Save, Server, Settings, ShieldCheck, type LucideIcon } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import laptop from "@/assets/powerbank-home.webp.asset.json";
+import wallet from "@/assets/pb-wallet.webp.asset.json";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { meta } from "@/components/pb/shell";
 import { Section, Table } from "@/components/panel/ui";
 import { api, apiConfigured, errMessage, type ApiActivityLog } from "@/lib/api";
 import { fmtDate } from "@/lib/demo-store";
 
 export const Route = createFileRoute("/admin/settings")({ head: () => meta("Settings", "PowerBank platform settings and activity logs."), component: SettingsPage });
-function Toggle({ label, def = false }: { label: string; def?: boolean }) { const [v, setV] = useState(def); return <label className="flex items-center justify-between rounded-xl border p-3 text-sm">{label}<Switch checked={v} onCheckedChange={x => { setV(x); toast(`${label}: ${x ? "on" : "off"} (prototype control)`); }} /></label>; }
-function F({ label, def, type = "text" }: { label: string; def: string; type?: string }) { return <div><Label>{label}</Label><Input type={type} defaultValue={def} /></div>; }
 
 function SettingsPage() {
   const qc = useQueryClient(); const real = apiConfigured();
@@ -89,44 +88,59 @@ function SettingsPage() {
 
   const logTotalPages = logsQ.data ? Math.max(1, Math.ceil(logsQ.data.total / logsQ.data.perPage)) : 1;
 
-  return <Section title="Settings" icon={Settings} action={<span className="rounded-full bg-warning/20 px-3 py-1 text-xs font-bold">{real ? "Live MySQL settings" : "Prototype controls"}</span>}>
-    <Tabs defaultValue="general"><TabsList className="mb-4 flex h-auto flex-wrap"><TabsTrigger value="general">General</TabsTrigger><TabsTrigger value="appearance">Appearance</TabsTrigger><TabsTrigger value="security">{real ? "Security & Activity Log" : "Security"}</TabsTrigger><TabsTrigger value="system">System</TabsTrigger></TabsList>
-      <TabsContent value="general">
-        {real ? <form onSubmit={e => void saveGeneral(e)} className="grid max-w-2xl gap-3 sm:grid-cols-2">
-          <div><Label>Platform Name</Label><Input value={siteName} onChange={e => setSiteName(e.target.value)} /></div>
-          <div><Label>Logo text</Label><Input value={logoText} onChange={e => setLogoText(e.target.value)} /></div>
-          <div><Label>Support Contact</Label><Input value={supportContact} onChange={e => setSupportContact(e.target.value)} /></div>
-          <div><Label>Website</Label><Input value={websiteUrl} onChange={e => setWebsiteUrl(e.target.value)} /></div>
-          <div><Label>Policy Version</Label><Input value={policyVersion} onChange={e => setPolicyVersion(e.target.value)} /></div>
-          <div className="flex items-end"><Button disabled={busy} className="w-40">{busy ? "Saving…" : "Save"}</Button></div>
+  return <>
+    <div className="relative overflow-hidden rounded-2xl bg-banner-gradient p-5 text-primary-foreground shadow-soft md:p-6">
+      <div className="flex items-center gap-4"><span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-primary-foreground/15"><Settings className="h-9 w-9" strokeWidth={2.4} /></span>
+        <div className="min-w-0"><h2 className="text-2xl font-extrabold md:text-3xl">Platform Settings</h2><p className="text-primary-foreground/90">Configure your platform, manage features and preferences.</p></div>
+        <ShieldCheck className="ml-auto hidden h-20 w-20 shrink-0 fill-primary-foreground/20 text-lime md:block" strokeWidth={1.8} /></div>
+    </div>
+    <div className="grid gap-4 xl:grid-cols-2">
+      <Card title="General Settings" icon={LayoutGrid} art={<img src={laptop.url} alt="" className="h-32 object-contain" />} action={<SaveBtn form="general-form" busy={busy} />}>
+        <form id="general-form" onSubmit={e => void saveGeneral(e)} className="space-y-2">
+          <Row label="Platform Name"><Input value={siteName} onChange={e => setSiteName(e.target.value)} /></Row>
+          <Row label="Logo Text"><Input value={logoText} onChange={e => setLogoText(e.target.value)} /></Row>
+          <Row label="Site URL"><IconInput icon={Globe}><Input className="pl-9" value={websiteUrl} onChange={e => setWebsiteUrl(e.target.value)} /></IconInput></Row>
+          <Row label="Support Contact"><IconInput icon={Mail}><Input className="pl-9" value={supportContact} onChange={e => setSupportContact(e.target.value)} /></IconInput></Row>
+          <Row label="Policy Version"><Input value={policyVersion} onChange={e => setPolicyVersion(e.target.value)} /></Row>
         </form>
-          : <form onSubmit={e => void saveGeneral(e)} className="grid max-w-2xl gap-3 sm:grid-cols-2"><F label="Platform Name" def="PowerBank" /><F label="Logo text" def="⚡ PowerBank" /><F label="Support Contact" def="support@powerbank.example" /><F label="Website" def="https://powerbank.example" /><Button className="sm:col-span-2 sm:w-40">Save</Button></form>}
-      </TabsContent>
-      <TabsContent value="appearance"><div className="grid max-w-2xl gap-3"><Toggle label="Dark sidebar" def /><Toggle label="Compact tables" /><Toggle label="Show DEMO labels" def /><div className="flex gap-2">{["bg-primary", "bg-forest", "bg-lime"].map(c => <span key={c} className={`h-10 w-10 rounded-xl ${c}`} />)}<span className="self-center text-xs text-muted-foreground">Brand colors</span></div></div></TabsContent>
-      <TabsContent value="security"><div className="grid max-w-3xl gap-4">
-        {real ? <>
-          <form onSubmit={e => void changeAdminPw(e)} className="grid gap-3 sm:grid-cols-3">
-            <div><Label>Current password</Label><Input type="password" value={curPw} onChange={e => setCurPw(e.target.value)} /></div>
-            <div><Label>New password</Label><Input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} /></div>
-            <div><Label>Confirm new password</Label><Input type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)} /></div>
-            <Button disabled={busy} className="sm:w-48">{busy ? "Updating…" : "Update Admin Password"}</Button>
-          </form>
-          <div>
-            <h3 className="mb-2 text-sm font-bold">Admin Activity Log</h3>
-            <Table empty={!logsQ.data?.items.length} head={["Date","Admin","Action","Target","IP"]}>{(logsQ.data?.items ?? []).map(l => <tr key={l.id}><td className="px-3 py-2 whitespace-nowrap">{fmtDate(l.date, true)}</td><td className="px-3 font-medium">{l.admin}</td><td className="px-3 font-mono text-xs">{l.action}</td><td className="px-3 text-xs text-muted-foreground">{l.targetType ? `${l.targetType}${l.targetId ? ` #${l.targetId}` : ""}` : "—"}</td><td className="px-3 text-xs text-muted-foreground">{l.ip}</td></tr>)}</Table>
-            {logsQ.data && <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground"><span>Total {logsQ.data.total} events</span><div className="flex items-center gap-1"><Button variant="outline" size="icon" className="h-8 w-8" disabled={logPage <= 1} onClick={() => setLogPage(p => p - 1)} aria-label="Previous"><ChevronLeft /></Button><span className="px-2">{logPage} / {logTotalPages}</span><Button variant="outline" size="icon" className="h-8 w-8" disabled={logPage >= logTotalPages} onClick={() => setLogPage(p => p + 1)} aria-label="Next"><ChevronRight /></Button></div></div>}
-          </div>
-        </> : <>
-          <form onSubmit={e => void saveGeneral(e)} className="grid gap-3 sm:grid-cols-2"><F label="Admin name" def="Admin User" /><F label="Admin email" def="admin@powerbank.example" /><F label="Current password" def="" type="password" /><F label="New password" def="" type="password" /><Button className="sm:w-48">Update (UI only)</Button></form><Toggle label="Two-factor authentication (UI only)" />
-          <Table head={["Login history (demo)", "Device", "Location"]}>{[["25 Nov 2026, 09:12", "Chrome · Windows", "Mumbai (sample)"], ["24 Nov 2026, 18:40", "Safari · iPhone", "Pune (sample)"], ["23 Nov 2026, 10:05", "Chrome · macOS", "Delhi (sample)"]].map(r => <tr key={r[0]}>{r.map(c => <td key={c} className="px-3 py-2.5">{c}</td>)}</tr>)}</Table>
-        </>}
-      </div></TabsContent>
-      <TabsContent value="system"><div className="grid max-w-2xl gap-3">
-        {real ? <>
-          <label className="flex items-center justify-between rounded-xl border p-3 text-sm">Registration open<Switch disabled={savingToggle || settQ.isPending || settQ.isError} checked={regOpen} onCheckedChange={v => void saveToggle("registration_open", v)} /></label>
-          <label className="flex items-center justify-between rounded-xl border p-3 text-sm">Maintenance mode<Switch disabled={savingToggle || settQ.isPending || settQ.isError} checked={maint} onCheckedChange={v => void saveToggle("maintenance_mode", v)} /></label>
-        </> : <><Toggle label="Email notification preference" def /><Toggle label="Push notification preference" def /><Toggle label="Maintenance mode (UI only)" /></>}
-      </div></TabsContent>
-    </Tabs>
-  </Section>;
+      </Card>
+      <Card title="Payment Settings" icon={CreditCard} art={<img src={wallet.url} alt="" className="h-32 object-contain" />} action={<span className="rounded-full bg-primary-foreground/15 px-3 py-1 text-xs font-semibold">Server config</span>}>
+        <div className="space-y-2">
+          <Row label="Payment Gateway"><Info>MXPay</Info></Row>
+          <Row label="API Key & Channel"><Info icon={Lock}>Set in server config.php</Info></Row>
+          <Row label="Min Withdrawal"><Info icon={IndianRupee}>100</Info></Row>
+          <Row label="Withdrawal Limit"><Info>Up to available balance</Info></Row>
+        </div>
+      </Card>
+      <Card title="Security Settings" icon={ShieldCheck} art={<ShieldCheck className="h-28 w-28 fill-primary/15 text-primary" strokeWidth={1.6} />} action={<SaveBtn form="pw-form" busy={busy} label="Update" />}>
+        <form id="pw-form" onSubmit={e => void changeAdminPw(e)} className="space-y-2">
+          <Row label="Current Password"><IconInput icon={Lock}><Input className="pl-9" type="password" value={curPw} onChange={e => setCurPw(e.target.value)} /></IconInput></Row>
+          <Row label="New Password"><IconInput icon={Lock}><Input className="pl-9" type="password" value={newPw} onChange={e => setNewPw(e.target.value)} /></IconInput></Row>
+          <Row label="Confirm Password"><IconInput icon={Lock}><Input className="pl-9" type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)} /></IconInput></Row>
+        </form>
+      </Card>
+      <Card title="Other Settings" icon={Info2} art={<Server className="h-28 w-28 fill-primary/10 text-primary-deep" strokeWidth={1.6} />}>
+        <div className="space-y-3">
+          <Row label="Maintenance Mode"><span className="flex items-center gap-3 text-sm text-muted-foreground"><Switch disabled={real && (savingToggle || settQ.isPending || settQ.isError)} checked={maint} onCheckedChange={v => { if (real) void saveToggle("maintenance_mode", v); else { setMaint(v); toast(`Maintenance ${v ? "on" : "off"} (prototype)`); } }} />Enable maintenance mode</span></Row>
+          <Row label="Registration"><span className="flex items-center gap-3 text-sm text-muted-foreground"><Switch disabled={real && (savingToggle || settQ.isPending || settQ.isError)} checked={regOpen} onCheckedChange={v => { if (real) void saveToggle("registration_open", v); else setRegOpen(v); }} />Allow new sign ups</span></Row>
+          <Row label="Platform Status"><span className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-bold ${maint ? "bg-warning/20 text-orange" : "bg-success/15 text-success"}`}>{maint ? "Maintenance" : "Online"}</span></Row>
+        </div>
+      </Card>
+    </div>
+    {real && <Section title="Admin Activity Log" icon={History}>
+      <Table empty={!logsQ.data?.items.length} head={["Date","Admin","Action","Target","IP"]}>{(logsQ.data?.items ?? []).map(l => <tr key={l.id}><td className="px-3 py-2 whitespace-nowrap">{fmtDate(l.date, true)}</td><td className="px-3 font-medium">{l.admin}</td><td className="px-3 font-mono text-xs">{l.action}</td><td className="px-3 text-xs text-muted-foreground">{l.targetType ? `${l.targetType}${l.targetId ? ` #${l.targetId}` : ""}` : "—"}</td><td className="px-3 text-xs text-muted-foreground">{l.ip}</td></tr>)}</Table>
+      {logsQ.data && <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground"><span>Total {logsQ.data.total} events</span><div className="flex items-center gap-1"><Button variant="outline" size="icon" className="h-8 w-8" disabled={logPage <= 1} onClick={() => setLogPage(p => p - 1)} aria-label="Previous"><ChevronLeft /></Button><span className="px-2">{logPage} / {logTotalPages}</span><Button variant="outline" size="icon" className="h-8 w-8" disabled={logPage >= logTotalPages} onClick={() => setLogPage(p => p + 1)} aria-label="Next"><ChevronRight /></Button></div></div>}
+    </Section>}
+  </>;
 }
+
+function Card({ title, icon: Icon, art, action, children }: { title: string; icon: LucideIcon; art: ReactNode; action?: ReactNode; children: ReactNode }) {
+  return <section className="panel-card overflow-hidden p-0">
+    <div className="flex items-center justify-between gap-2 bg-forest-gradient px-4 py-3 text-primary-foreground"><h2 className="flex min-w-0 items-center gap-2.5 truncate text-lg font-bold"><Icon className="h-6 w-6 shrink-0" strokeWidth={2.4} />{title}</h2>{action}</div>
+    <div className="grid gap-4 p-4 sm:grid-cols-[150px_minmax(0,1fr)]"><div className="hidden place-items-center rounded-2xl bg-primary/5 sm:grid">{art}</div><div className="min-w-0">{children}</div></div>
+  </section>;
+}
+function Row({ label, children }: { label: string; children: ReactNode }) { return <div className="grid items-center gap-1 sm:grid-cols-[140px_minmax(0,1fr)] sm:gap-3"><Label className="text-sm font-semibold">{label}</Label>{children}</div>; }
+function IconInput({ icon: Icon, children }: { icon: LucideIcon; children: ReactNode }) { return <div className="relative"><Icon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" />{children}</div>; }
+function Info({ icon: Icon, children }: { icon?: LucideIcon; children: ReactNode }) { return <div className="flex h-9 items-center gap-2 rounded-md border bg-muted/40 px-3 text-sm">{Icon && <Icon className="h-4 w-4 text-primary" />}{children}</div>; }
+function SaveBtn({ form, busy, label = "Save Changes" }: { form: string; busy: boolean; label?: string }) { return <button type="submit" form={form} disabled={busy} className="flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground shadow-soft hover:bg-primary/90 disabled:opacity-60"><Save className="h-4 w-4" />{busy ? "Saving…" : label}</button>; }

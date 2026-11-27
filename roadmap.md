@@ -15,3 +15,9 @@
 - [x] Phase 4: admin login + users
 - [x] Phase 5: plans, referrals, notifications
 - [x] Phase 6: reports, logs, security tests
+
+# Maintenance mode repair
+- [x] Enforce saved maintenance setting in PHP and show maintenance on user screens.
+- [x] Keep admin access and payment callbacks available; prevent misleading toggle saves.
+- [x] Verify PHP rules, 18 frontend tests and simulated on/off screen transitions at mobile and desktop sizes.
+- [ ] Activate on Hostinger (requires uploading the updated PHP API).

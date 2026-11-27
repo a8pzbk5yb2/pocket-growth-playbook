@@ -33,3 +33,4 @@ use the editor.
 - Admin (`/admin/*`) and the mobile user screens share in-memory demo state from `src/lib/demo-store.tsx` (React context in __root) so changes on one side show on the other; it resets on refresh by design. Users get mobile screens only (no desktop user panel); account screens wrap in `SignedIn` from `src/components/pb/signed-in.tsx`.
 - PHP API lives in `backend/` (deployed separately to Hostinger); the app talks to it only via `src/lib/api.ts` (cookie auth + CSRF header) because MySQL must never be reached from the browser.
 - The browser reaches the PHP API only through the same-site proxy route `src/routes/api/public/v1/$.ts`, because cross-domain sign-in cookies get blocked by browsers.
+- Maintenance is enforced in the PHP dispatcher and checked by the shared user-screen gate via public `/status`; admin and verified payment callbacks remain reachable so maintenance can be disabled and pending payments settled.

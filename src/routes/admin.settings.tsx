@@ -30,6 +30,7 @@ function SettingsPage() {
   const [policyVersion, setPolicyVersion] = useState("2026-11");
   const [regOpen, setRegOpen] = useState(true);
   const [maint, setMaint] = useState(false);
+  const [savingToggle, setSavingToggle] = useState(false);
   const [curPw, setCurPw] = useState(""); const [newPw, setNewPw] = useState(""); const [confirmPw, setConfirmPw] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -58,13 +59,17 @@ function SettingsPage() {
   };
 
   const saveToggle = async (key: "registration_open" | "maintenance_mode", val: boolean) => {
-    if (key === "registration_open") setRegOpen(val); else setMaint(val);
     if (!real) return;
+    setSavingToggle(true);
     try {
-      await api.put("/admin/settings", { [key]: val });
+      const result = await api.put<{ settings: Record<string, string> }>("/admin/settings", { [key]: val });
+      qc.setQueryData(["admin-settings"], result);
+      if (key === "registration_open") setRegOpen(result.settings[key] === "1"); else setMaint(result.settings[key] === "1");
+      void qc.invalidateQueries({ queryKey: ["platform-status"] });
       void qc.invalidateQueries({ queryKey: ["admin-settings"] }); void qc.invalidateQueries({ queryKey: ["admin-activity-logs"] });
       toast.success("Setting updated");
     } catch (er) { toast.error(errMessage(er)); }
+    finally { setSavingToggle(false); }
   };
 
   const changeAdminPw = async (e: React.FormEvent) => {
@@ -118,8 +123,8 @@ function SettingsPage() {
       </div></TabsContent>
       <TabsContent value="system"><div className="grid max-w-2xl gap-3">
         {real ? <>
-          <label className="flex items-center justify-between rounded-xl border p-3 text-sm">Registration open<Switch checked={regOpen} onCheckedChange={v => void saveToggle("registration_open", v)} /></label>
-          <label className="flex items-center justify-between rounded-xl border p-3 text-sm">Maintenance mode<Switch checked={maint} onCheckedChange={v => void saveToggle("maintenance_mode", v)} /></label>
+          <label className="flex items-center justify-between rounded-xl border p-3 text-sm">Registration open<Switch disabled={savingToggle || settQ.isPending || settQ.isError} checked={regOpen} onCheckedChange={v => void saveToggle("registration_open", v)} /></label>
+          <label className="flex items-center justify-between rounded-xl border p-3 text-sm">Maintenance mode<Switch disabled={savingToggle || settQ.isPending || settQ.isError} checked={maint} onCheckedChange={v => void saveToggle("maintenance_mode", v)} /></label>
         </> : <><Toggle label="Email notification preference" def /><Toggle label="Push notification preference" def /><Toggle label="Maintenance mode (UI only)" /></>}
       </div></TabsContent>
     </Tabs>

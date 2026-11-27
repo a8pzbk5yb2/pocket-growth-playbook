@@ -13,3 +13,6 @@ Cookies use `SameSite=Lax`, so the app must be served from the same main domain 
 Responses: `{ success: true, data, meta? }` or `{ success: false, error: { code, message, fields? } }`.
 
 SMS codes: sent through BlackSMS (blacksms.in). In `config.php` set `sms.provider` to `blacksms` and fill in your BlackSMS API key and sender ID. Leave it as `log` to test without sending real SMS.
+
+## Maintenance mode
+Upload the updated `api/v1/index.php` and `api/v1/middleware/maintenance.php` to Hostinger. No migration is required: the admin switch saves `maintenance_mode` in `platform_settings`. `/status` exposes only the maintenance boolean. User endpoints return HTTP 503 while enabled; admin access, CSRF, logout, health and authenticated gateway callbacks remain available. User screens check status every 15 seconds and on focus. Run the standalone rules check with `php tests/maintenance_test.php`.

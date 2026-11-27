@@ -4,7 +4,7 @@ require __DIR__ . '/config/app.php';
 require __DIR__ . '/config/database.php';
 require __DIR__ . '/config/cors.php';
 foreach (['response', 'validator', 'jwt'] as $f) require __DIR__ . "/helpers/$f.php";
-foreach (['rate_limit', 'auth', 'admin'] as $f) require __DIR__ . "/middleware/$f.php";
+foreach (['rate_limit', 'auth', 'admin', 'maintenance'] as $f) require __DIR__ . "/middleware/$f.php";
 foreach (glob(__DIR__ . '/services/*.php') ?: [] as $f) require $f;
 foreach (glob(__DIR__ . '/controllers/*Controller.php') ?: [] as $f) require $f;
 
@@ -18,9 +18,11 @@ apply_cors();
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = '/' . trim(preg_replace('#^.*/api/v1#', '', parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/'), '/');
 require_csrf();
+require_not_maintenance($path);
 
 /** Route table: "METHOD /path/{id}" => handler. Filled in by each phase. */
 $routes = [
+  'GET /status' => function () { header('Cache-Control: no-store'); ok(['maintenance' => maintenance_enabled()]); },
   'GET /health' => function () { db()->query('SELECT 1')->fetchColumn(); ok(['status' => 'ok', 'db' => 'connected', 'time' => gmdate('c')]); },
   'GET /auth/csrf' => function () { $t = bin2hex(random_bytes(16)); set_cookie('pb_csrf', $t, 0, false); ok(['csrfToken' => $t]); },
 ];

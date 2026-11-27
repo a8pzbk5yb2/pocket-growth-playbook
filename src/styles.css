@@ -318,3 +318,8 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 @utility shadow-soft { box-shadow: var(--shadow-soft); }
 @utility panel-card { background: var(--card); border: 1px solid var(--border); border-radius: 1.1rem; box-shadow: var(--shadow-soft); }
 @media print { .no-print { display: none !important; } }
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}

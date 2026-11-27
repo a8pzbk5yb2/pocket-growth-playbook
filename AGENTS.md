@@ -34,3 +34,4 @@ use the editor.
 - PHP API lives in `backend/` (deployed separately to Hostinger); the app talks to it only via `src/lib/api.ts` (cookie auth + CSRF header) because MySQL must never be reached from the browser.
 - The browser reaches the PHP API only through the same-site proxy route `src/routes/api/public/v1/$.ts`, because cross-domain sign-in cookies get blocked by browsers.
 - Maintenance is enforced in the PHP dispatcher and checked by the shared user-screen gate via public `/status`; admin and verified payment callbacks remain reachable so maintenance can be disabled and pending payments settled.
+- Password recovery has a public mobile page using the existing PHP SMS reset endpoints, so signed-out users can recover access without changing authentication infrastructure.

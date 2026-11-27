@@ -21,3 +21,7 @@
 - [x] Keep admin access and payment callbacks available; prevent misleading toggle saves.
 - [x] Verify PHP rules, 18 frontend tests and simulated on/off screen transitions at mobile and desktop sizes.
 - [ ] Activate on Hostinger (requires uploading the updated PHP API).
+
+# Forgot password page
+- [ ] Add a mobile password recovery page linked from login, using existing SMS reset endpoints.
+- [ ] Verify signed-out access, validation, and reset transitions.

@@ -11,7 +11,7 @@ export function AuthLayout({ title, subtitle, children }: { title: string; subti
   return <div className="pb-stage"><div className={`pb-auth ${signup ? "pb-signup" : "pb-login"}`}>
     <header className="pb-auth-header"><Logo /><img src={signup ? signupArt.url : loginArt.url} alt="" /></header>
     <main className="pb-auth-panel">
-      <h1>{signup ? <>Create Your<br /><span>PowerBank Account</span></> : <>Welcome Back to<br /><span>PowerBank</span></>}</h1>
+      <h1>{signup ? <>Create Your<br /><span>PowerBank Account</span></> : title === "Welcome Back to PowerBank" ? <>Welcome Back to<br /><span>PowerBank</span></> : <>{title}<br /><span>PowerBank</span></>}</h1>
       <p className="pb-auth-subtitle">{subtitle}</p>
       <div className="pb-auth-form">{children}</div>
     </main>

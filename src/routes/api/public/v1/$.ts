@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 // Same-site bridge to the Hostinger PHP API, so its sign-in cookies belong to this app's domain.
 // The PHP API does all checks itself (CSRF, sessions, roles); this only forwards the request.
-const UPSTREAM = "https://novel-mediumvioletred-stork-77.hostingersite.com/api/v1";
+const UPSTREAM = "https://meta.mxpay.vip/api/v1";
 const PASS_REQ = ["accept", "content-type", "cookie", "x-csrf-token", "user-agent"];
 
 async function forward({ request, params }: { request: Request; params: { _splat?: string } }) {
